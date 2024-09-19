@@ -51,6 +51,17 @@ return
 
 
 }
+
+void AABB::Include(vec3& point)
+{
+    Min.x = glm::min(Min.x, point.x);
+    Min.y = glm::min(Min.y, point.y);
+    Min.z = glm::min(Min.z, point.z);
+
+    Max.x = glm::max(Max.x, point.x);
+    Max.y = glm::max(Max.y, point.y);
+    Max.z = glm::max(Max.z, point.z);
+}
 // void AABB::operator-=(AABB& other)
 // {
 //     this->Min = glm::min(this->Min, other.Min);

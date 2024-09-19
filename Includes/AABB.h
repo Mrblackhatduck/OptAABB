@@ -18,6 +18,7 @@ class AABB
     bool Intersects(AABB& other);
     void operator +=(AABB& other);
     static AABB Union(AABB& first,AABB& second);
+    void Include(vec3& point);
 
     
     //void operator -=(AABB& other);
