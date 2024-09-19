@@ -7,13 +7,20 @@ using vec4 = glm::vec4;
 
 class AABB
 {
+
     vec3 Min;
     vec3 Max;
+    public:
+    static AABB zero;
     AABB(vec3&& min, vec3&& max);
-    AABB(vec3 min,vec3 max);
+    //AABB(vec3 min,vec3 max);
     AABB(vec3 origin, float Radius);
+    bool Intersects(AABB& other);
     void operator +=(AABB& other);
-    void operator -=(AABB& other);
+    static AABB Union(AABB& first,AABB& second);
+
+    
+    //void operator -=(AABB& other);
 };
 
 

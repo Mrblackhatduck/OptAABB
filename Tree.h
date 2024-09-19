@@ -28,7 +28,8 @@ class Tree{
         root(std::forward<Node>(Root))
         {}
 
-
+    void InsertNode(Node&& newNode);
+    void InsertNodeUtil(Node* insertingNode, Node&& insertedNode);
 };
 
 #endif
