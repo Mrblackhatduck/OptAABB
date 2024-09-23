@@ -23,7 +23,8 @@ bool AABB::Intersects(AABB& other)
    && this->Min.y <= other.Max.y && this->Max.y >= other.Min.y 
    && this->Min.z <= other.Max.z && this->Max.z >= other.Min.z;
 }
-//------------Need rewriting ----------
+
+
 void AABB::operator+=(AABB& other)
 {
     this->Min = glm::min(this->Min, other.Min);
