@@ -8,6 +8,13 @@ AABB::AABB(vec3&& min, vec3&& max)
     Max = std::forward<vec3>(max);
 }
 
+AABB::AABB()
+{
+  Max = vec3(FLOAT_MIN,FLOAT_MIN,FLOAT_MIN);
+  Min = vec3(FLOAT_MIN,FLOAT_MIN,FLOAT_MIN);
+  Area = 0;
+}
+
 AABB::AABB(vec3 origin, float Radius)
 {
     static float Halfspace = Radius/2; 

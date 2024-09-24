@@ -27,7 +27,7 @@ float surfaceArea(const AABB& box) {
 float SAH(const AABB& left, const AABB& right, float traversalCost) {
     float surfaceLeft = surfaceArea(left);
     float surfaceRight = surfaceArea(right);
-    float surfaceParent = surfaceArea(AABB::combine(left, right)); // Combine two AABBs
+    float surfaceParent = surfaceArea(AABB::Union(left, right)); // Combine two AABBs
 
     return traversalCost + (surfaceLeft / surfaceParent) * surfaceLeft + (surfaceRight / surfaceParent) * surfaceRight;
 }
@@ -46,7 +46,7 @@ BVHNode* buildBVH(std::vector<Object>& objects, int start, int end) {
     // Compute the bounding box for the current node
     AABB bounds;
     for (int i = start; i < end; i++) {
-        bounds = AABB::combine(bounds, objects[i].bounds);
+        bounds = AABB::Union(bounds, objects[i].bounds);
     }
     node->bounds = bounds;
 
@@ -62,8 +62,8 @@ BVHNode* buildBVH(std::vector<Object>& objects, int start, int end) {
 
         for (int i = start + 1; i < end; i++) {
             AABB leftBox, rightBox;
-            for (int j = start; j < i; j++) leftBox = AABB::combine(leftBox, objects[j].bounds);
-            for (int j = i; j < end; j++) rightBox = AABB::combine(rightBox, objects[j].bounds);
+            for (int j = start; j < i; j++) leftBox = AABB::Union(leftBox, objects[j].bounds);
+            for (int j = i; j < end; j++) rightBox = AABB::Union(rightBox, objects[j].bounds);
 
             float cost = SAH(leftBox, rightBox, 1.0f); // Assuming traversal cost is 1.0f
             if (cost < bestCost) {
