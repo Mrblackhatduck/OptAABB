@@ -38,7 +38,7 @@ void AABB::operator+=(AABB& other)
     this->Max = glm::max(this->Max, other.Max);
 }
 
-AABB AABB::Union(AABB& first,AABB& second)
+AABB AABB::Union(const AABB& first,const AABB& second)
 {
 return 
     AABB

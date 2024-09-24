@@ -7,13 +7,16 @@
 //#include <algorithm>
 #include "AABB.h" // Assuming AABB is already defined with Min and Max (vec3) properties
 
+using uint = unsigned int;
 struct Object {
     AABB bounds;
     std::string name;
     // Other object data...
 };
 
-struct BVHNode {
+class BVHNode {
+   public:
+    static BVHNode nullnode;
     AABB bounds;
     BVHNode* left;
     BVHNode* right;
@@ -21,6 +24,7 @@ struct BVHNode {
 
     BVHNode() : left(nullptr), right(nullptr), object(nullptr) {}
 };
+
 
 // Compute the surface area of an AABB
 float surfaceArea(const AABB& box) {
@@ -38,7 +42,7 @@ float SAH(const AABB& left, const AABB& right, float traversalCost) {
 }
 
 // BVH partitioning
-BVHNode* buildBVH(std::vector<Object>& objects, int start, int end) {
+/*BVHNode* buildBVH(std::vector<Object>& objects, int start, int end) {
     BVHNode* node = new BVHNode();
 
     // Base case: single object
@@ -85,5 +89,12 @@ BVHNode* buildBVH(std::vector<Object>& objects, int start, int end) {
 
     return node;
 }
+*/
 
+BVHNode RootNode;
+void CreateTree()
+{
+    if(RootNode )
+} 
+int CreateTreeUtil(){}
 #endif
