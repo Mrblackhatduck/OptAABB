@@ -1,10 +1,15 @@
+#ifndef GPT_TEST
+#define GPT_TEST
 #include <vector>
 #include <limits>
+#include <iostream>
+#include <string>
 //#include <algorithm>
 #include "AABB.h" // Assuming AABB is already defined with Min and Max (vec3) properties
 
 struct Object {
     AABB bounds;
+    std::string name;
     // Other object data...
 };
 
@@ -80,3 +85,5 @@ BVHNode* buildBVH(std::vector<Object>& objects, int start, int end) {
 
     return node;
 }
+
+#endif

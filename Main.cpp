@@ -1,11 +1,16 @@
 #include <GLFW/glfw3.h>
-#include <AABB.h>
+//#include <AABB.h>
 #include <iostream>
 #define Debug(x) std::cout<< x <<"\n"
-
+#include <GPTThing.h>
 int main()
 {
-    Debug("Sheesh");
+    std::vector<Object> objects = {Object(),Object(),Object(),Object(),Object()};
+    for (size_t i = 0; i < objects.size(); i++)
+    {
+        objects[i].name = "object: "+std::to_string(i);
+    }
+    
     if (!glfwInit())
     {
         Debug("ERROR Iniitalizing GLFW");
