@@ -22,10 +22,14 @@ struct Node
     Node *Parent,*Right,*Left;
     bool isLeaf = false;
     AABB* Data;
+    operator const AABB&()
+    const {
+        return *Data;
+    }
     operator AABB&()
     {
         return *Data;
-    }
+    } 
     bool operator==(const Node& other) const
     {
         if(other.isLeaf == this-> isLeaf && other.Data == this->Data)

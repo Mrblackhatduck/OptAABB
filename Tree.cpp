@@ -9,8 +9,25 @@ void Tree::InsertNode(Node&& newNode)
     if(root == Tree::nullNode)
         {
             root = newNode;
+            root.Parent = nullptr;
             return;
         }
+    
+    Node* CurrentNode = &root;
+    while(CurrentNode != nullptr)
+    {
+        if(CurrentNode->Left != nullptr)
+        if(((AABB&)*(CurrentNode->Left)).Intersects((AABB&)newNode))
+        {
+            CurrentNode = CurrentNode->Left;
+        }
+        if(((AABB&)*(CurrentNode->Right)).Intersects((AABB&)newNode))
+        {
+            CurrentNode = CurrentNode->Right;
+        }
+
+    }
+    
     if(root.Left == nullptr)
         {
             root.Left = &newNode;
@@ -36,7 +53,7 @@ void Tree::InsertNode(Node&& newNode)
 
 void Tree::InsertNodeUtil(Node* insertingNode,Node* insertInto,Node&& insertedNode)
 {
-    if(insertInto == nullptr)
+    //if(insertInto == nullptr)
     
 
 }
