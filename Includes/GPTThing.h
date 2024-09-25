@@ -94,7 +94,10 @@ float SAH(const AABB& left, const AABB& right, float traversalCost) {
 BVHNode RootNode;
 void CreateTree()
 {
-    if(RootNode )
+    //if(RootNode )
 } 
-int CreateTreeUtil(){}
+int CreateTreeUtil()
+{
+    return 0;
+}
 #endif
