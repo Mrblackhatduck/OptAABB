@@ -16,39 +16,40 @@ void Tree::InsertNode(Node&& newNode)
     Node* CurrentNode = &root;
     while(CurrentNode != nullptr)
     {
+        bool intersect_right, intersect_left;
         if(CurrentNode->Left != nullptr)
-        if(((AABB&)*(CurrentNode->Left)).Intersects((AABB&)newNode))
+        {
+            intersect_left = ((AABB&)*(CurrentNode->Left)).Intersects((AABB&)newNode);
+        }
+        if(CurrentNode->Right != nullptr)
+        {
+            intersect_right = ((AABB&)*(CurrentNode->Right)).Intersects((AABB&)newNode);
+        }
+        
+        if(intersect_left && !intersect_right)
         {
             CurrentNode = CurrentNode->Left;
+            continue;
         }
-        if(((AABB&)*(CurrentNode->Right)).Intersects((AABB&)newNode))
-        {
-            CurrentNode = CurrentNode->Right;
-        }
+        else
+            if(intersect_right && !intersect_left)
+            {
+                CurrentNode = CurrentNode->Right;
+                continue;
+            }
+       if(intersect_left && intersect_right)
+       {
+        CurrentNode = 
+            glm::distance((vec3)newNode,(vec3)*(CurrentNode->Left)) 
+            <
+            glm::distance((vec3)newNode,(vec3)*(CurrentNode->Right)) 
+            ?
+             CurrentNode->Left : CurrentNode->Right;
+       }
 
     }
     
-    if(root.Left == nullptr)
-        {
-            root.Left = &newNode;
-            treeNodes.push_back(newNode);
-            return; 
-        }
-    if(root.Right == nullptr)
-        {
-            root.Right = &newNode;
-            treeNodes.push_back(newNode);
-            return;
-        }
-
-    if(((AABB&)(root.Left)).Intersects(newNode))
-        {
-            InsertNodeUtil(&root,root.Left,std::forward<Node>(newNode));
-        }
-    if(((AABB&)(root.Right)).Intersects(newNode))
-        {
-            InsertNodeUtil(&root,root.Right,std::forward<Node>(newNode));
-        }
+    
 }
 
 void Tree::InsertNodeUtil(Node* insertingNode,Node* insertInto,Node&& insertedNode)

@@ -3,8 +3,10 @@
 #include <iostream>
 #define Debug(x) std::cout<< x <<"\n"
 #include <GPTThing.h>
+#include <Tree.h>
 int main()
 {
+    
     std::vector<Object> objects = {Object(),Object(),Object(),Object(),Object()};
     for (size_t i = 0; i < objects.size(); i++)
     {
@@ -24,8 +26,7 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-    
+
     glfwTerminate();
-    Debug("Bungo");
     return 0;
 }

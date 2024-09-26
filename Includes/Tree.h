@@ -22,6 +22,7 @@ struct Node
     Node *Parent,*Right,*Left;
     bool isLeaf = false;
     AABB* Data;
+    
     operator const AABB&()
     const {
         return *Data;
@@ -53,6 +54,10 @@ struct Node
         this->Right = other.Right;
         this->Left = other.Left;
         this->isLeaf = other.isLeaf;
+    }
+    operator vec3() const
+    {
+        return (Data->Max + Data->Min)/2.0f ;
     }
 };
 
