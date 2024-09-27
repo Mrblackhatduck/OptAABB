@@ -2,11 +2,14 @@
 #define AABBTREE_H
 
 #include <AABB.h>
-#include <iostream>
+#include <stack>
+#include <vector>
 
 template <typename T>
 using vector = std::vector<T>;
 
+template<typename t>
+using stack = std::stack<t>; 
 
 struct Node
 {
@@ -19,6 +22,21 @@ struct Node
         {
             
         }
+    Node(AABB* AABBdata)
+    :
+        Data(AABBdata),
+        Parent(nullptr),
+        Right(nullptr),
+        Left(nullptr)
+    {}
+    Node()
+    :
+        Data(nullptr),
+        Parent(nullptr),
+        Right(nullptr),
+        Left(nullptr)
+    {}
+    
     Node *Parent,*Right,*Left;
     bool isLeaf = false;
     AABB* Data;
@@ -55,7 +73,7 @@ struct Node
         this->Left = other.Left;
         this->isLeaf = other.isLeaf;
     }
-    operator vec3() const
+    operator const vec3() const
     {
         return (Data->Max + Data->Min)/2.0f ;
     }
@@ -63,16 +81,21 @@ struct Node
 
 class Tree{
     Node root;
-    vector<Node> treeNodes;
     public:
+        vector<Node> treeNodes;
         static Node nullNode;
         Tree(Node&& Root) :
         treeNodes(vector<Node>()),
         root(std::forward<Node>(Root))
         {}
-
+        Tree():root(nullNode),
+        treeNodes(vector<Node>())
+        {}
+    const Node GetRoot() const{ return root;}
     void InsertNode(Node&& newNode);
     void InsertNodeUtil(Node* insertingNode,Node* IntoNode,Node&& insertedNode);
+    bool RayCast(const vec3 start, const vec3 direction,float maxDistance = 500.0f);
+    Node* PickBestSibling(Node* inserted );
     //bool IntersectsWith();
 };
 
