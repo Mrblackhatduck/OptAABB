@@ -2,7 +2,8 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-
+#include <Camera.h>
+#include <glm/gtc/type_ptr.hpp>
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -12,9 +13,10 @@ unsigned int SCR_HEIGHT = 600;
 
 const char *vertexShaderSource = "#version 430 core\n"
     "layout (location = 0) in vec3 aPos;\n"
+    "uniform mat4 viewProj;"
     "void main()\n"
     "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "   gl_Position = viewProj * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
     "}\0";
 const char *fragmentShaderSource = "#version 430 core\n"
     "out vec4 FragColor;\n"
@@ -23,10 +25,14 @@ const char *fragmentShaderSource = "#version 430 core\n"
     "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "}\n\0";
 
+
+
+
+Camera cam(SCR_WIDTH,SCR_HEIGHT);
 int main()
 {
-    // glfw: initialize and configure
-    // ------------------------------
+    
+    
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -117,12 +123,12 @@ int main()
     glBindVertexArray(0); 
 
 
-    // uncomment this call to draw in wireframe polygons.
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
     
-    // render loop
-    // -----------
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glViewport(0,0,SCR_WIDTH, SCR_HEIGHT);
+    cam.Projection = Camera::Projection::ortho;
+    cam.Position = {0.0f,0.0f,0.0f};
+    //glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -131,16 +137,21 @@ int main()
 
         // render
         // ------
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // draw our first triangle
-        glViewport(0,0,SCR_WIDTH/2,SCR_HEIGHT/2);
+        
+        mat4 transform = mat4(1.0f);
+        transform = glm::scale(transform,{.5f,.5f,.5f});
+        transform = glm::translate(transform,{0.f,0.f,0.f});
+        auto matrix = cam.GetViewProj() * transform;
         glUseProgram(shaderProgram);
+        GLuint loc =  glGetUniformLocation(shaderProgram,"viewProj");
+        glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(matrix));
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        glViewport(SCR_WIDTH/2,SCR_HEIGHT/2,SCR_WIDTH/2,SCR_HEIGHT/2);
+        
         glDrawArrays(GL_TRIANGLES, 0, 3);
         // glBindVertexArray(0); // no need to unbind it every time 
 
@@ -179,4 +190,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     //glViewport(0, 0, width, height);
     SCR_HEIGHT = height;
     SCR_WIDTH = width;
+    cam.ViewPortCallback(width,height);
+    
 }

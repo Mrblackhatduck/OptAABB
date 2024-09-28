@@ -1,9 +1,7 @@
 #ifndef AABB_H
 #define AABB_H
 
-#include <glm/glm.hpp>
-using vec3 = glm::vec3;
-using vec4 = glm::vec4;
+#include <Types.h>
 
 class AABB
 {
