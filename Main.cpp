@@ -4,6 +4,7 @@
 #include <iostream>
 #include <Camera.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <Transform.h>
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -13,10 +14,12 @@ unsigned int SCR_HEIGHT = 600;
 
 const char *vertexShaderSource = "#version 430 core\n"
     "layout (location = 0) in vec3 aPos;\n"
-    "uniform mat4 viewProj;\n"
+    "uniform mat4 proj;\n"
+    "uniform mat4 view;\n"
+    "uniform mat4 transform;\n"
     "void main()\n"
     "{\n"
-    "   gl_Position = viewProj * vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "   gl_Position = proj * view * transform * vec4(aPos.xyz, 1.0);\n"
     "}\0";
 const char *fragmentShaderSource = "#version 430 core\n"
     "out vec4 FragColor;\n"
@@ -26,13 +29,89 @@ const char *fragmentShaderSource = "#version 430 core\n"
     "}\n\0";
 
 
+struct Cube
+{
+    unsigned int vao = 0;
+    unsigned int vbo;
+    void Render()
+    {
+        if (vao == 0)
+        {
+            float vertices[] =
+            {// back face
+                -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+                1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
+                1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+                1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, // top-right
+                -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+                -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, // top-left
+                // front face
+                -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
+                1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, // bottom-right
+                1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top-right
+                1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, // top-right
+                -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, // top-left
+                -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom-left
+                // left face
+                -1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
+                -1.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-left
+                -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+                -1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+                -1.0f, -1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-right
+                -1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-right
+                // right face
+                1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-left
+                1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
+                1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top-right         
+                1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, // bottom-right
+                1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // top-left
+                1.0f, -1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // bottom-left     
+                // bottom face
+                -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
+                1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f, // top-left
+                1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom-left
+                1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, // bottom-left
+                -1.0f, -1.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom-right
+                -1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, // top-right
+                // top face
+                -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
+                1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
+                1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top-right     
+                1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom-right
+                -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
+                -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f  // bottom-left        
+            };
+            glGenVertexArrays(1, &vao);
+            glGenBuffers(1, &vbo);
+            glBindVertexArray(vao);
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+            //currently bound
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+            glBindVertexArray(0);
+            // spcify yourself which vao
+            //glEnableVertexArrayAttrib(vao,1);
+            glEnableVertexAttribArray(1);
+            //glBindVertexArray(vao);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3));
+            glEnableVertexAttribArray(2);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 6));
 
+        }
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+    }
+};
 
-Camera cam();
+Camera cam;
+float deltaTime;
+float lastFrameTime;
 int main()
 {
     
-    
+    cam = Camera();
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -98,9 +177,9 @@ int main()
 
     
     float vertices[] = {
-        -0.5f, -0.5f, 2.0f, // left  
-        0.5f, -0.5f, 2.0f, // right 
-        0.0f,  0.5f, 2.0f  // top   
+        -0.5f, -0.5f, 0.0f, // left  
+        0.5f, -0.5f, 0.0f, // right 
+        0.0f,  0.5f, 0.0f  // top   
     }; 
 
     unsigned int VBO, VAO;
@@ -124,37 +203,51 @@ int main()
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glViewport(0,0,SCR_WIDTH, SCR_HEIGHT);
     
-    //cam.Position = {0.0f,0.0f,-1.0f};
-    //glEnable(GL_DEPTH_TEST);
+    cam.Position = {0.0f,0.0f,5.0f};
+    glEnable(GL_DEPTH_TEST);
+
+    mat4 transform = Transform::createModelMatrix(vec3(0.0f,0.0f,0.0f),vec3(0.0f,0.0f,0.0f),vec3(1.0f,1.0f,1.0f));
+    Cube cube;
     while (!glfwWindowShouldClose(window))
     {
         // input
         // -----
         processInput(window);
-
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // render
         // ------
         glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        //cam.Position = vec3(0.0f,0.0f,-1.0f);
         
-        mat4 transform = mat4(1.0f);
-        transform = glm::scale(transform,{.5f,.5f,.5f});
-        transform = glm::translate(transform,{0.f,0.f,0.f});
-        mat4 matrix = glm::perspective(glm::radians(45.0f),(float)SCR_WIDTH/(float)SCR_HEIGHT,.1f,100.0f) *  cam.GetViewMatrix() * transform;
+        //mat4 matrix = glm::ortho(0.0f,(float)SCR_WIDTH,0.0f,(float)SCR_HEIGHT,.1f,100.0f);
+        mat4 matrix = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, .1f, 100.0f) ;
+        
+
 
         glUseProgram(shaderProgram);
-        GLuint loc =  glGetUniformLocation(shaderProgram,"viewProj");
+        GLuint loc =  glGetUniformLocation(shaderProgram,"view");
+        glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(cam.GetViewMatrix()));
+       
+        loc =  glGetUniformLocation(shaderProgram,"proj");
         glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(matrix));
+
+        loc =  glGetUniformLocation(shaderProgram,"transform");
+        glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(transform));
+
         glBindVertexArray(VAO); 
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
+        cube.Render();
         // glBindVertexArray(0); // no need to unbind it every time 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
+        deltaTime =  glfwGetTime() - lastFrameTime;
+        lastFrameTime = glfwGetTime();
     }
 
     // optional: de-allocate all resources once they've outlived their purpose:
@@ -174,7 +267,20 @@ int main()
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+        {
+            glfwSetWindowShouldClose(window, true);
+            return;
+        }
+
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cam.ProcessKeyboard(Camera_Movement::LEFT,deltaTime);
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cam.ProcessKeyboard(Camera_Movement::RIGHT,deltaTime);
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cam.ProcessKeyboard(Camera_Movement::FORWARD,deltaTime);
+    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cam.ProcessKeyboard(Camera_Movement::BACKWARD,deltaTime);
+        
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

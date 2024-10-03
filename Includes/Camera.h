@@ -52,7 +52,7 @@ public:
     // constructor with scalar values
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) 
     :
-        Front(vec3(0.0f, 0.0f, -1.0f)),
+        Front(vec3(0.0f, 0.0f, 1.0f)),
         MovementSpeed(SPEED),
         MouseSensitivity(SENSITIVITY),
         Zoom(ZOOM)
