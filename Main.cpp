@@ -28,6 +28,9 @@ const char *fragmentShaderSource = "#version 430 core\n"
     "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "}\n\0";
 
+const char *vertSelection ="";
+const char *fragSelection ="";
+
 
 struct Cube
 {
@@ -116,7 +119,6 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    
 
   
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "TempWindow", NULL, NULL);
@@ -129,6 +131,7 @@ int main()
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, cursorCallback);
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_FALSE);
    
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -218,24 +221,37 @@ int main()
         deltaTime =  glfwGetTime() - lastFrameTime;
         lastFrameTime = glfwGetTime();
     }
-
-  
     glDeleteProgram(shaderProgram);
-
-   
     glfwTerminate();
     return 0;
 }
 
+
+#pragma region CursorCallback
 double LastX, LastY;
 float deltaX,deltaY;
+float halfWidth, halfHeight;
 void cursorCallback(GLFWwindow* window,double x, double y)
 {
-    deltaX = ((x - SCR_WIDTH/2) - LastX)   / SCR_WIDTH/2; 
-    deltaY = (-1 * (y - SCR_HEIGHT/2) - LastY) /  SCR_HEIGHT/2; 
-
-    std::cout << "dX  " << deltaX << " dY  " << deltaY <<"\n" ;
+    if((int)halfWidth != SCR_WIDTH*2  || (int)halfHeight != SCR_HEIGHT*2)
+    {
+        halfWidth = SCR_WIDTH/2;
+        halfHeight = SCR_HEIGHT/2;
+    }
+    
+    double centerPosX, centerPosY;
+    centerPosY = (-1*y) + halfHeight;
+    centerPosX = x - halfWidth;
+    
+    deltaX = centerPosX   / halfWidth; 
+    deltaY = centerPosY / halfHeight; 
+    
+    cam.ProcessMouseMovement(centerPosX - LastX, centerPosY- LastY,true);
+    LastX = centerPosX;
+    LastY = centerPosY;
+    //std::cout << "dX  " << deltaX << " dY  " << deltaY <<"\n" ;
 }
+#pragma endregion
 
 void processInput(GLFWwindow *window)
 {
@@ -253,7 +269,15 @@ void processInput(GLFWwindow *window)
         cam.ProcessKeyboard(Camera_Movement::FORWARD,deltaTime);
     if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         cam.ProcessKeyboard(Camera_Movement::BACKWARD,deltaTime);
+    if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        cam.ProcessKeyboard(Camera_Movement::UPWARD,deltaTime);
+    if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        cam.ProcessKeyboard(Camera_Movement::DOWNWARD,deltaTime);
     
+    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        cam.FastMove = true;
+        else
+        cam.FastMove = false;
 }
 
 
