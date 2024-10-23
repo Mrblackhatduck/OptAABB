@@ -6,6 +6,7 @@ AABB::AABB(vec3&& min, vec3&& max)
 {
     Min = std::forward<vec3>(min);
     Max = std::forward<vec3>(max);
+    Origin = (min + max) / 2.0f;
 }
 
 AABB::AABB()
@@ -13,6 +14,7 @@ AABB::AABB()
   Max = vec3(FLOAT_MIN,FLOAT_MIN,FLOAT_MIN);
   Min = vec3(FLOAT_MIN,FLOAT_MIN,FLOAT_MIN);
   Area = 0;
+  Origin = vec3(0.0f, 0.0f, 0.0f);
 }
 
 AABB::AABB(vec3 origin, float Radius)
@@ -21,6 +23,7 @@ AABB::AABB(vec3 origin, float Radius)
     static vec3 Halfspace3f = vec3(Halfspace,Halfspace,Halfspace);
     Min = origin - Halfspace3f;
     Max = origin + Halfspace3f;
+    Origin = origin;
 }
 
 bool AABB::Intersects(AABB& other)

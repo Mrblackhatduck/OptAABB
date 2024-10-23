@@ -10,6 +10,7 @@ class AABB
     public:
         vec3 Min;
         vec3 Max;
+        vec3 Origin;
         float Area;
         static AABB zero;
         AABB();
@@ -23,6 +24,12 @@ class AABB
     
     //void operator -=(AABB& other);
 };
+
+//static vector<AABB> objects;
+static void PopulateTree(vector<AABB>& sceneObjects) 
+{
+    
+}
 
 
 #endif

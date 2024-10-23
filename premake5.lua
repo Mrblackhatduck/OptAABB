@@ -10,6 +10,8 @@ workspace "AABBALgo"
             "./Includes/",
             "./Dependencies/glm/",
             "./Dependencies/GL4.3/include/", 
+            "./Dependencies/stb_image/", 
+            "./Dependencies/tinyGltf/", 
             "./Dependencies/"
         }
         files

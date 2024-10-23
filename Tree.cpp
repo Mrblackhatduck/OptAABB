@@ -5,6 +5,9 @@
 
 Node Tree::nullNode = Node(nullptr,nullptr,nullptr,nullptr);
 
+
+
+
 Node* Tree::PickBestSibling(Node* inserted)
 {
     Node *Best, *CurrentNode;
@@ -13,6 +16,7 @@ Node* Tree::PickBestSibling(Node* inserted)
     while(CurrentNode != nullptr)
     {
         bool intersect_right, intersect_left;
+        intersect_left = intersect_right = false;
         if(CurrentNode->Left != nullptr)
         {
             intersect_left = ((AABB&)*(CurrentNode->Left)).Intersects((AABB&)*inserted);
@@ -118,4 +122,9 @@ void Tree::InsertNodeUtil(Node* insertingNode,Node* IntoNode,Node&& insertedNode
     //if(insertInto == nullptr)
     
 
+}
+
+void Tree::BuildTree(vector<AABB>& volumes) 
+{
+    
 }

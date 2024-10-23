@@ -1,15 +1,34 @@
-#ifndef AABBTREE_H
-#define AABBTREE_H
+#ifndef TREE_H
+#define TREE_H
 
 #include <AABB.h>
 #include <stack>
-#include <vector>
+#include <Types.h>
+//#include <vector>
 
-template <typename T>
-using vector = std::vector<T>;
+#define FRWRD(Type, DATA) std::forward<Type>(DATA)
+
+
 
 template<typename t>
 using stack = std::stack<t>; 
+
+enum class Side{
+    LEFT,RIGHT
+};
+
+struct Plane {
+    Plane(vec3&& normal, float&& dist): 
+        Normal(FRWRD(vec3,normal)),
+        Dist(FRWRD(float,dist))
+    {}
+    //Side CheckSide(const AABB& aabb) 
+    //{
+    //   // if ((aabb.Max + aabb.Min)/2.)
+    //}
+    vec3 Normal;
+    float Dist;
+};
 
 struct Node
 {
@@ -96,6 +115,7 @@ class Tree{
     void InsertNodeUtil(Node* insertingNode,Node* IntoNode,Node&& insertedNode);
     bool RayCast(const vec3 start, const vec3 direction,float maxDistance = 500.0f);
     Node* PickBestSibling(Node* inserted );
+    void BuildTree(vector<AABB>& worldObjects);
     //bool IntersectsWith();
 };
 
