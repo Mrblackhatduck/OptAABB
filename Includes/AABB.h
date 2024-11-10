@@ -26,10 +26,10 @@ class AABB
 };
 
 //static vector<AABB> objects;
-static void PopulateTree(vector<AABB>& sceneObjects) 
-{
-    
-}
+//static void PopulateTree(vector<AABB>& sceneObjects) 
+//{
+//    
+//}
 
 
 #endif

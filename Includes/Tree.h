@@ -3,7 +3,7 @@
 
 #include <AABB.h>
 #include <stack>
-#include <Types.h>
+//#include <Types.h>
 //#include <vector>
 
 #define FRWRD(Type, DATA) std::forward<Type>(DATA)
@@ -13,22 +13,7 @@
 template<typename t>
 using stack = std::stack<t>; 
 
-enum class Side{
-    LEFT,RIGHT
-};
 
-struct Plane {
-    Plane(vec3&& normal, float&& dist): 
-        Normal(FRWRD(vec3,normal)),
-        Dist(FRWRD(float,dist))
-    {}
-    //Side CheckSide(const AABB& aabb) 
-    //{
-    //   // if ((aabb.Max + aabb.Min)/2.)
-    //}
-    vec3 Normal;
-    float Dist;
-};
 
 struct Node
 {

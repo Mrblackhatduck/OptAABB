@@ -19,7 +19,10 @@ workspace "AABBALgo"
             "./Includes/**.h",
             "./Includes/**.hpp",
             "./Dependencies/GL4.3/src/glad.c",
-            "./*.cpp"
+            "./*.cpp",
+            "./**.glsl",
+            "./**.frag",
+            "./**.vert",
         }
         libdirs
         {

@@ -1,6 +1,7 @@
 #include <Utils.h>
 #include <AABB.h>
 
+
 AABB AABB::zero = AABB( vec3(FLOAT_MAX,FLOAT_MAX,FLOAT_MAX), vec3(FLOAT_MIN,FLOAT_MIN,FLOAT_MIN)); 
 AABB::AABB(vec3&& min, vec3&& max)
 {

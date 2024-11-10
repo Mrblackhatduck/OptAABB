@@ -6,7 +6,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <Transform.h>
 #include <Primatives.h>
+#include <Shader.h>
 #include <thread>
+//#include <bTree.h>
 
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -22,21 +24,6 @@ void cursorCallback(GLFWwindow* window,double x, double y);
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
 
-const char *vertexShaderSource = "#version 430 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "uniform mat4 proj;\n"
-    "uniform mat4 view;\n"
-    "uniform mat4 transform;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = proj * view * transform * vec4(aPos.xyz, 1.0);\n"
-    "}\0";
-const char *fragmentShaderSource = "#version 430 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
 
 const char* basicComputeShader = "\n"
     "#versiom 430 core  \n"
@@ -171,47 +158,16 @@ float deltaTime;
 float lastFrameTime;
 
 #include <random>
-#pragma region
 
-// Function to generate a random float in a given range
-float RandomFloat(float min, float max) {
-    // Use a random device to seed the generator
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dis(min, max);
-    return dis(gen);
-}
-
-// Function to generate a random glm::vec3
-glm::vec3 RandomVec3(float minRange = -1.0f, float maxRange = 1.0f) {
-    float x = RandomFloat(minRange, maxRange);
-    float y = RandomFloat(minRange, maxRange);
-    float z = RandomFloat(minRange, maxRange);
-    return vec3(x, y, z);
-}
-
-#pragma endregion
-
-
-void Test() 
-{
-    vector<vec3> randoms;
-    
-    for (int i = 0; i < 10; i++)
-    {
-        randoms.push_back(RandomVec3(-20, 20));
-    }
-
-    cout << "sup" << "\n";
-}
 
 int main()
 {
     //tinygltf::Model model;
     void(*func)() = []() 
         {
-            cout << "thing" << "\n";
+
         };
+            //Test();
     std::thread thread = std::thread(func);
     thread.join();
     cam = Camera();
@@ -240,7 +196,7 @@ int main()
     }
 
 
-    
+    /*
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
@@ -277,7 +233,7 @@ int main()
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-
+    */
     
     
 
@@ -291,6 +247,11 @@ int main()
 
     mat4 transform = Transform::createModelMatrix(vec3(0.0f,0.0f,0.0f),vec3(0.0f,0.0f,0.0f),vec3(10.0f,0.50f,10.0f));
     Cube cube;
+    vector <IDrawable*> drawables;
+    drawables.push_back(&cube);
+    DrawCall dCall(Shader("./Shaders/Basic.vert", "./Shaders/Basic.frag"));
+    //dCall.shader = ;
+    
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -303,25 +264,26 @@ int main()
 
         mat4 matrix = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, .1f, 100.0f) ;
         
-        glUseProgram(shaderProgram);
-        GLuint loc =  glGetUniformLocation(shaderProgram,"view");
+        //glUseProgram(shaderProgram);
+        GLuint loc =  glGetUniformLocation(dCall.shader.ID,"view");
         glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(cam.GetViewMatrix()));
        
-        loc =  glGetUniformLocation(shaderProgram,"proj");
+        loc =  glGetUniformLocation(dCall.shader.ID,"proj");
         glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(matrix));
 
-        loc =  glGetUniformLocation(shaderProgram,"transform");
+        loc =  glGetUniformLocation(dCall.shader.ID,"transform");
         glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(transform));
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
-        cube.Render();
+        
+        dCall.Draw(drawables);
        
         glfwSwapBuffers(window);
         glfwPollEvents();
         deltaTime =  glfwGetTime() - lastFrameTime;
         lastFrameTime = glfwGetTime();
     }
-    glDeleteProgram(shaderProgram);
+    //glDeleteProgram(shaderProgram);
     glfwTerminate();
     return 0;
 }

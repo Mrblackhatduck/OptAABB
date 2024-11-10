@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/glm/gtc/quaternion.hpp>
 #include <glm/glm/mat4x4.hpp>
-
+#include <memory.h>
 #include <functional>
 
 using vec3 = glm::vec3;
@@ -18,4 +18,11 @@ using vector = std::vector<t>;
 
 template <typename tp>
 using function = std::function<tp>;
+
+//template <typename tp>
+//using unique_ptr = std::unique_ptr<tp>;
+//
+//template <typename tp>
+//using shared_ptr = std::shared_ptr<tp>;
+
 #endif

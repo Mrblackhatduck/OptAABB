@@ -2,7 +2,7 @@
 #include <Primatives.h>
 
 
-void Cube::Render() 
+void Cube::Draw(Shader* shader)
 {
     if (vao == 0)
     {
@@ -50,6 +50,8 @@ void Cube::Render()
             -1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top-left
             -1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f  // bottom-left        
         };
+        shader->use();
+
         glGenVertexArrays(1, &vao);
         glGenBuffers(1, &vbo);
         glBindVertexArray(vao);
