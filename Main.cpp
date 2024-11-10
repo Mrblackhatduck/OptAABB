@@ -247,9 +247,12 @@ int main()
 
     mat4 transform = Transform::createModelMatrix(vec3(0.0f,0.0f,0.0f),vec3(0.0f,0.0f,0.0f),vec3(10.0f,0.50f,10.0f));
     Cube cube;
+    Cube rect;
     vector <IDrawable*> drawables;
     drawables.push_back(&cube);
-    DrawCall dCall(Shader("./Shaders/Basic.vert", "./Shaders/Basic.frag"));
+    drawables.push_back(&rect);
+    DrawCall Basic(Shader("./Shaders/V_Basic.glsl", "./Shaders/F_Basic.glsl"));
+    DrawCall DepthCall(Shader("./Shaders/V_Depth.glsl", "./Shaders/F_Depth.glsl"));
     //dCall.shader = ;
     
     while (!glfwWindowShouldClose(window))
@@ -265,18 +268,18 @@ int main()
         mat4 matrix = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, .1f, 100.0f) ;
         
         //glUseProgram(shaderProgram);
-        GLuint loc =  glGetUniformLocation(dCall.shader.ID,"view");
+        GLuint loc =  glGetUniformLocation(Basic.shader.ID,"view");
         glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(cam.GetViewMatrix()));
        
-        loc =  glGetUniformLocation(dCall.shader.ID,"proj");
+        loc =  glGetUniformLocation(Basic.shader.ID,"proj");
         glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(matrix));
 
-        loc =  glGetUniformLocation(dCall.shader.ID,"transform");
+        loc =  glGetUniformLocation(Basic.shader.ID,"transform");
         glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(transform));
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
         
-        dCall.Draw(drawables);
+        Basic.Draw(drawables);
        
         glfwSwapBuffers(window);
         glfwPollEvents();
