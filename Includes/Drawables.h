@@ -35,7 +35,8 @@ public:
     mat4* LightMatrix;
     uint fbo, rbo, depthTexture;
     Shader depthShader;
-    DrawCallDepth(int sizeX, int sizeY, mat4* lightTransform, Shader&& color, Shader&& Depth)
+    vec3 lightPos;
+    DrawCallDepth(int sizeX, int sizeY, mat4* lightTransform, Shader&& color, Shader&& Depth,vec3 lightPosition)
         :DrawCall(std::forward<Shader>(color)),
         size_x(sizeX),
         size_y(sizeY),
@@ -67,8 +68,8 @@ public:
         glViewport(0, 0, size_x, size_y);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         glClear(GL_DEPTH_BUFFER_BIT);
-        shader.use();
-        shader.setMat4("lightSpaceMatrix", (*LightMatrix));
+        depthShader.use();
+        depthShader.setMat4("lightSpaceMatrix", (*LightMatrix));
         for (auto drw : drawables)
         {
             drw->Draw(&depthShader);
@@ -76,6 +77,8 @@ public:
         glBindFramebuffer(GL_FRAMEBUFFER,0);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+        glBindTexture(GL_TEXTURE_2D, depthTexture);
+        shader.setMat4();
 
     }
 };
