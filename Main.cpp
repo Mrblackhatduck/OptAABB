@@ -246,13 +246,31 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     mat4 transform = Transform::createModelMatrix(vec3(0.0f,0.0f,0.0f),vec3(0.0f,0.0f,0.0f),vec3(10.0f,0.50f,10.0f));
-    Cube cube;
+    Drawable *cube = new Cube();
+    cube -> Transform=  glm::translate((mat4&)(*cube), { 0,10,0 });
+    cube -> Transform=  glm::scale((mat4&)(*cube), { 10,1,10 });
     Cube rect;
-    vector <IDrawable*> drawables;
-    drawables.push_back(&cube);
+    vector <Drawable*> drawables;
+    drawables.push_back(cube);
     drawables.push_back(&rect);
     DrawCall Basic(Shader("./Shaders/V_Basic.glsl", "./Shaders/F_Basic.glsl"));
-    DrawCall DepthCall(Shader("./Shaders/V_Depth.glsl", "./Shaders/F_Depth.glsl"));
+    
+    mat4 lightmat = mat4(1.0f);
+    vec3 eye = { 10,10,-10};
+    vec3 target = { 0,0,0 };
+    vec3 up = { 0,1,0 };
+    lightmat = glm::lookAt(eye, target, up);
+    //lightmat = glm::translate(lightmat, { 10,10,-10 });
+    lightmat = glm::ortho<float>(0,800,600,0) * lightmat;
+   
+    
+    DrawCallDepth DepthCall(
+        800,600,
+        &lightmat,
+        Shader("./Shaders/V_Shadow.glsl", "./Shaders/F_Shadow.glsl"),
+        Shader("./Shaders/V_Depth.glsl", "./Shaders/F_Depth.glsl"),
+        eye);
+    
     //dCall.shader = ;
     
     while (!glfwWindowShouldClose(window))
@@ -265,22 +283,27 @@ int main()
         glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        mat4 matrix = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, .1f, 100.0f) ;
+        mat4 Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, .1f, 100.0f) ;
         
+        mat4 viewProj = Projection * cam.GetViewMatrix();
+        DepthCall.shader.setMat4("view", cam.GetViewMatrix());
+        DepthCall.shader.setMat4("proj", Projection);
+        
+        //.setMat4("viewProj", viewProj);
         //glUseProgram(shaderProgram);
-        GLuint loc =  glGetUniformLocation(Basic.shader.ID,"view");
-        glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(cam.GetViewMatrix()));
+        /*GLuint loc =  glGetUniformLocation(DepthCall.shader.ID,"view");
+        glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr( * cam.GetViewMatrix()));
        
-        loc =  glGetUniformLocation(Basic.shader.ID,"proj");
+        loc =  glGetUniformLocation(DepthCall.shader.ID,"proj");
         glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(matrix));
 
-        loc =  glGetUniformLocation(Basic.shader.ID,"transform");
-        glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(transform));
+        loc =  glGetUniformLocation(DepthCall.shader.ID,"transform");
+        glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(transform));*/
 
         //glDrawArrays(GL_TRIANGLES, 0, 3);
         
-        Basic.Draw(drawables);
-       
+        //Basic.Draw(drawables);
+        DepthCall.Draw(drawables);
         glfwSwapBuffers(window);
         glfwPollEvents();
         deltaTime =  glfwGetTime() - lastFrameTime;

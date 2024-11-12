@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/glm/gtc/quaternion.hpp>
 #include <glm/glm/mat4x4.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <memory.h>
 #include <functional>
 
@@ -19,6 +20,7 @@ using vector = std::vector<t>;
 template <typename tp>
 using function = std::function<tp>;
 
+#define VAL_PTR(x) glm::value_ptr(x)
 //template <typename tp>
 //using unique_ptr = std::unique_ptr<tp>;
 //
