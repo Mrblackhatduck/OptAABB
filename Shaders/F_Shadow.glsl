@@ -20,8 +20,8 @@ float calculateShadow(vec4 fragPosLightSpace)
     projectCoords = (projectCoords * .5f) + .5f;
     float closestDepth = texture(Depthmap,projectCoords.xy).r;
     float currentDepth = projectCoords.z;
-float value = currentDepth > closestDepth? 1.0f : 0.0f;
-return value;
+    float value = currentDepth > closestDepth? 1.0f : 0.0f;
+    return value;
 
 }
 float calculateLight(vec4 fragPosLightSpace)

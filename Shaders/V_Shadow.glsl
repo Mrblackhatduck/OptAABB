@@ -6,6 +6,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 uniform mat4 lightSpaceMatrix;
+
 out V_OUT
 {
 	vec4 fragPos;

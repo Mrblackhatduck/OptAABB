@@ -68,7 +68,7 @@ void Cube::Draw(Shader* shader)
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 3));
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(sizeof(float) * 6));
-        modelMat = mat4(1.0);
+        Transform = mat4(1.0);
     }
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -78,5 +78,5 @@ void Cube::Draw(Shader* shader)
 Cube::operator mat4& ()
 {
     
-    return modelMat;
+    return Transform;
 }

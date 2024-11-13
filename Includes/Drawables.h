@@ -17,14 +17,16 @@ struct DrawCall
 {
 public:
     DrawCall():shader(0) {}
-    DrawCall(Shader&& _shader):shader(std::move(_shader))
+    DrawCall(Shader* _shader):shader(_shader)
     {}
-    Shader shader;
+    Shader* shader;
     virtual void Draw(vector<Drawable*>& drawables)
     {
         for each (Drawable* var in drawables)
         {
-            var->Draw(&shader);
+            shader->use();
+            shader->setMat4("transform", var->Transform);
+            var->Draw(shader);
         }
     }
 };
@@ -36,10 +38,10 @@ public:
     int size_x,size_y;
     mat4* LightMatrix;
     uint fbo, depthTexture;
-    Shader depthShader;
+    Shader* depthShader;
     vec3 lightPos;
-    DrawCallDepth(int sizeX, int sizeY, mat4* lightTransform, Shader&& color, Shader&& Depth,vec3 lightPosition)
-        :DrawCall(std::forward<Shader>(color)),
+    DrawCallDepth(int sizeX, int sizeY, mat4* lightTransform, Shader* color, Shader* Depth,vec3 lightPosition)
+        :DrawCall(color),
         size_x(sizeX),
         size_y(sizeY),
         LightMatrix(lightTransform),
@@ -71,26 +73,33 @@ public:
         glViewport(0, 0, size_x, size_y);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         glClear(GL_DEPTH_BUFFER_BIT); 
-        GLuint modelMatLocation = glGetUniformLocation(depthShader.ID, "model");
+
+
+
+        //GLuint modelMatLocation = glGetUniformLocation(depthShader.ID, "model");
         mat4 temp;
-        depthShader.use();
-        depthShader.setMat4("lightSpaceMatrix", (*LightMatrix));
+        depthShader->use();
+        depthShader->setMat4("lightSpaceMatrix", (*LightMatrix));
+        //depthShader->setMat4();
         for (auto drw : drawables)
         {
             temp = *(drw);
-            glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, VAL_PTR(temp));
-            drw->Draw(&depthShader);
+            //depthShader.setMat4("transform", drw->Transform);
+            depthShader->setMat4("model",drw->Transform);
+            drw->Draw(depthShader);
         }
         glBindFramebuffer(GL_FRAMEBUFFER,0);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
         glBindTexture(GL_TEXTURE_2D, depthTexture);
-        shader.setMat4("lightSpaceMatrix",*(LightMatrix));
+        shader->setMat4("lightSpaceMatrix",*(LightMatrix));
+        //shader.setMat4("mode");
         for (auto drw : drawables) 
         {
             temp = *(drw);
-            glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, VAL_PTR(temp));
-            drw->Draw(&shader);
+            shader->setMat4("transform", drw->Transform);
+            //glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, VAL_PTR(temp));
+            drw->Draw(shader);
         }
     }
 };
