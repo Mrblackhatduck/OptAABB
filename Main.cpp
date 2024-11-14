@@ -184,6 +184,7 @@ int main()
         glfwTerminate();
         return -1;
     }
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, cursorCallback);
@@ -238,52 +239,77 @@ int main()
     
 
 
-    
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     //glfwcursor(GL_FRONT_AND_BACK, GL_LINE);
     glViewport(0,0,SCR_WIDTH, SCR_HEIGHT);
     
     cam.Position = {0.0f,0.0f,5.0f};
     glEnable(GL_DEPTH_TEST);
 
-    mat4 transform = Transform::createModelMatrix(vec3(0.0f,0.0f,0.0f),vec3(0.0f,0.0f,0.0f),vec3(1.0f,0.50f,1.0f));
-    Drawable *cube = new Cube();
-    cube->Transform = transform;
-    //cube -> Transform=  glm::scale((mat4&)(*cube), { 10,1,10 });
+    mat4 transform = Transform::createModelMatrix(vec3(0.0f,0.0f,0.0f),vec3(0.0f,0.0f,0.0f),vec3(1.0f,1.00f,1.0f));
+    Cube cube;
+    cube.Transform = transform;
+    cube.Transform = glm::translate(cube.Transform, { 0,2,0 });
+    
     Cube rect;
+    rect.Transform = transform;//Transform::createModelMatrix(vec3( 1.0f,1.0f,0.0f ), vec3( 0.0f,0.0f,0.0f ), vec3( 3.0f,0.5f,3.0f ));
+    rect.Transform = glm::translate(rect.Transform, { 0.0f,0.0f,0.0f });
+    rect.Transform = glm::scale(rect.Transform, { 3.0f,1.0f,3.0f });
+    
+    Plane plane;
+    plane.Transform = Transform::createModelMatrix(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.5f, 0.5f, 0.5f));
+    Plane p2;
+    p2.Transform = Transform::createModelMatrix(vec3(2.0f, 3.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.2f, 0.2f, 0.2f));
     vector <Drawable*> drawables;
-    drawables.push_back(cube);
-    drawables.push_back(&rect);
+    //drawables.push_back(&cube);
+    //drawables.push_back(&rect);
+    drawables.push_back(&plane);
+    drawables.push_back(&p2);
+
     Shader basicShader("./Shaders/V_Basic.glsl", "./Shaders/F_Basic.glsl");
     DrawCall Basic(&basicShader);
     
-    mat4 lightmat = mat4(1.0f);
-    vec3 eye = { 1,1,-1};
-    vec3 target = { 0,0,0 };
+    mat4 lightMat = mat4(1.0f);
+    vec3 eye = { -2.0f, 10.0f, -1.0f };
+    vec3 target = { 0,3,0 };
     vec3 up = { 0,1,0 };
-    lightmat = glm::lookAt(eye, target, up);
-    //lightmat = glm::translate(lightmat, { 10,10,-10 });
-    lightmat = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 1.5f) * lightmat;
+    lightMat = glm::lookAt(eye, target, up);
+    //lightMat = Transform::createModelMatrix({ -2.0f, 5.0f, -1.0f }, vec3(0), vec3(1));
+    mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 10.0f);
+    mat4 finalLightMat = lightProj * lightMat;
    
     Shader depthShader("./Shaders/V_Depth.glsl", "./Shaders/F_Depth.glsl");
     Shader ShadowShader("./Shaders/V_Shadow.glsl", "./Shaders/F_Shadow.glsl");
+    Shader DebugDepthShader("./Shaders/DEBUG/V_DShowDepth.glsl", "./Shaders/DEBUG/F_DShowDepth.glsl");
+    
+
     DrawCallDepth DepthCall(
-        800,600,
-        &lightmat,
+        1024,1024,
+        &finalLightMat,
         &ShadowShader,
         &depthShader,
         eye);
+    DepthCall.screenHeight = SCR_HEIGHT;
+    DepthCall.screenWidth = SCR_WIDTH;
+    Quad screenQuad;
+    DebugDepthCall debugDepthCall(&DebugDepthShader,DepthCall.depthTexture);
+    vector<Drawable*> screenMesh = { &screenQuad };
     
-    //dCall.shader = ;
-    
+    float timer;
+    float interval = 3;
     while (!glfwWindowShouldClose(window))
     {
         // input
         processInput(window);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // render
        
-        glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        //glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
+        
 
         mat4 Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, .1f, 100.0f) ;
         
@@ -292,22 +318,20 @@ int main()
         Basic.shader->setMat4("view", cam.GetViewMatrix());
         Basic.shader->setMat4("proj", Projection);
         
-        //.setMat4("viewProj", viewProj);
-        //glUseProgram(shaderProgram);
-        /*GLuint loc =  glGetUniformLocation(DepthCall.shader.ID,"view");
-        glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr( * cam.GetViewMatrix()));
-       
-        loc =  glGetUniformLocation(DepthCall.shader.ID,"proj");
-        glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(matrix));
-
-        loc =  glGetUniformLocation(DepthCall.shader.ID,"transform");
-        glUniformMatrix4fv(loc,1,GL_FALSE,glm::value_ptr(transform));*/
-
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        DepthCall.shader->use();
+        DepthCall.shader->setMat4("view", cam.GetViewMatrix());
+        DepthCall.shader->setMat4("proj", Projection);
+        DepthCall.shader->setVec3("lightPos", eye);
+        DepthCall.shader->setVec3("viewPos", cam.Position);
         
         //Basic.Draw(drawables);
         DepthCall.Draw(drawables);
-        
+        //debugDepthCall.Draw(screenMesh);
+     
+        p2.Transform = glm::translate(p2.Transform, { 0.0f,0.0f,0.0005f });
+       /* lightMat =  glm::rotate(lightMat, .001f, { 0.0f,1.0f,0.0f });
+        finalLightMat = lightProj * lightMat;*/
+
         glfwSwapBuffers(window);
         glfwPollEvents();
 
