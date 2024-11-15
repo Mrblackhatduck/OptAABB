@@ -197,51 +197,10 @@ int main()
     }
 
 
-    /*
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    // fragment shader
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    // check for shader compile errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-    // link shaders
-    unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    // check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-    }
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    */
-    
     
 
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
+    
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     //glfwcursor(GL_FRONT_AND_BACK, GL_LINE);
@@ -253,22 +212,19 @@ int main()
     mat4 transform = Transform::createModelMatrix(vec3(0.0f,0.0f,0.0f),vec3(0.0f,0.0f,0.0f),vec3(1.0f,1.00f,1.0f));
     Cube cube;
     cube.Transform = transform;
-    cube.Transform = glm::translate(cube.Transform, { 0,2,0 });
+    cube.Transform = glm::translate(cube.Transform, { 0.0f,2.0f,-3.0f });
     
     Cube rect;
     rect.Transform = transform;//Transform::createModelMatrix(vec3( 1.0f,1.0f,0.0f ), vec3( 0.0f,0.0f,0.0f ), vec3( 3.0f,0.5f,3.0f ));
-    rect.Transform = glm::translate(rect.Transform, { 0.0f,0.0f,0.0f });
-    rect.Transform = glm::scale(rect.Transform, { 3.0f,1.0f,3.0f });
+    rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
+    rect.Transform = glm::scale(rect.Transform, { 7.0f,0.5f,7.0f });
     
-    Plane plane;
-    plane.Transform = Transform::createModelMatrix(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.5f, 0.5f, 0.5f));
-    Plane p2;
-    p2.Transform = Transform::createModelMatrix(vec3(2.0f, 3.0f, 0.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.2f, 0.2f, 0.2f));
+    
     vector <Drawable*> drawables;
-    //drawables.push_back(&cube);
-    //drawables.push_back(&rect);
-    drawables.push_back(&plane);
-    drawables.push_back(&p2);
+    drawables.push_back(&cube);
+    drawables.push_back(&rect);
+    
+    //drawables.push_back(&p2);
 
     Shader basicShader("./Shaders/V_Basic.glsl", "./Shaders/F_Basic.glsl");
     DrawCall Basic(&basicShader);
@@ -278,8 +234,8 @@ int main()
     vec3 target = { 0,3,0 };
     vec3 up = { 0,1,0 };
     lightMat = glm::lookAt(eye, target, up);
-    //lightMat = Transform::createModelMatrix({ -2.0f, 5.0f, -1.0f }, vec3(0), vec3(1));
-    mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 10.0f);
+    mat4 lightProj = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, 1.0f, 700.0f);
+    
     mat4 finalLightMat = lightProj * lightMat;
    
     Shader depthShader("./Shaders/V_Depth.glsl", "./Shaders/F_Depth.glsl");
@@ -295,6 +251,7 @@ int main()
         eye);
     DepthCall.screenHeight = SCR_HEIGHT;
     DepthCall.screenWidth = SCR_WIDTH;
+
     Quad screenQuad;
     DebugDepthCall debugDepthCall(&DebugDepthShader,DepthCall.depthTexture);
     vector<Drawable*> screenMesh = { &screenQuad };
@@ -310,7 +267,7 @@ int main()
        
         //glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
         
-
+        
         mat4 Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, .1f, 100.0f) ;
         
         mat4 viewProj = Projection * cam.GetViewMatrix();
@@ -328,9 +285,9 @@ int main()
         DepthCall.Draw(drawables);
         //debugDepthCall.Draw(screenMesh);
      
-        p2.Transform = glm::translate(p2.Transform, { 0.0f,0.0f,0.0005f });
-       /* lightMat =  glm::rotate(lightMat, .001f, { 0.0f,1.0f,0.0f });
-        finalLightMat = lightProj * lightMat;*/
+        
+        lightMat =  glm::rotate(lightMat, .0001f, { 0.0f,1.0f,0.0f });
+        finalLightMat = lightProj * lightMat;
 
         glfwSwapBuffers(window);
         glfwPollEvents();

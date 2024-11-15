@@ -56,7 +56,7 @@ public:
         glTexImage2D(
             GL_TEXTURE_2D, 0,
             GL_DEPTH_COMPONENT,
-            size_x, sizeY,
+            size_x, size_y,
             0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -77,14 +77,14 @@ public:
         glViewport(0, 0, size_x, size_y);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        //glClearColor(0.1f, 0.1f, 0.0f, 0.0f);
         glClear( GL_DEPTH_BUFFER_BIT);
 
 
 
         //GLuint modelMatLocation = glGetUniformLocation(depthShader.ID, "model");
+        glCullFace(GL_FRONT);
         
-        glViewport(0, 0, size_x, size_y);
         depthShader->use();
         depthShader->setMat4("lightSpaceMatrix", (*LightMatrix));
         //depthShader->setMat4();
@@ -98,9 +98,9 @@ public:
 
         glBindFramebuffer(GL_FRAMEBUFFER,0);
         glViewport(0, 0, screenWidth, screenHeight);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glCullFace(GL_BACK);
         shader->use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, depthTexture);
