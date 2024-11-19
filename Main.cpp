@@ -241,6 +241,7 @@ int main()
     Shader depthShader("./Shaders/V_Depth.glsl", "./Shaders/F_Depth.glsl");
     Shader ShadowShader("./Shaders/V_Shadow.glsl", "./Shaders/F_Shadow.glsl");
     Shader DebugDepthShader("./Shaders/DEBUG/V_DShowDepth.glsl", "./Shaders/DEBUG/F_DShowDepth.glsl");
+    Shader ComputeTester("./Shaders/COMP_Test.glsl");
     
 
     DrawCallDepth DepthCall(
@@ -255,7 +256,7 @@ int main()
     Quad screenQuad;
     DebugDepthCall debugDepthCall(&DebugDepthShader,DepthCall.depthTexture);
     vector<Drawable*> screenMesh = { &screenQuad };
-    
+     
     float timer;
     float interval = 3;
     while (!glfwWindowShouldClose(window))

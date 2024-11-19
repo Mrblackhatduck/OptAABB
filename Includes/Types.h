@@ -7,7 +7,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <memory.h>
 #include <functional>
+#include <string>
 
+using string = std::string;
 using vec3 = glm::vec3;
 using quat = glm::quat;
 using mat4 = glm::mat4;
