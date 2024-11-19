@@ -160,6 +160,30 @@ float lastFrameTime;
 #include <random>
 
 
+struct Texture
+{
+    uint id;
+public:
+    Texture(uint Width, uint Height)
+    {
+        glGenTextures(1, &id);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D,id);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Width, Height, 0, GL_RGBA, GL_FLOAT, NULL);
+        glBindImageTexture(0, id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+
+
+    }
+    operator uint()const 
+    {
+        return id;
+    }
+};
+
 int main()
 {
     //tinygltf::Model model;
@@ -253,8 +277,11 @@ int main()
     DepthCall.screenHeight = SCR_HEIGHT;
     DepthCall.screenWidth = SCR_WIDTH;
 
+
+    Texture compute_tex = Texture(SCR_WIDTH,SCR_HEIGHT);
     Quad screenQuad;
-    DebugDepthCall debugDepthCall(&DebugDepthShader,DepthCall.depthTexture);
+    //DebugDepthCall debugDepthCall(&DebugDepthShader,DepthCall.depthTexture);
+    DebugDepthCall debugDepthCall(&DebugDepthShader,compute_tex);
     vector<Drawable*> screenMesh = { &screenQuad };
      
     float timer;
@@ -283,9 +310,19 @@ int main()
         DepthCall.shader->setVec3("viewPos", cam.Position);
         
         //Basic.Draw(drawables);
-        DepthCall.Draw(drawables);
-        //debugDepthCall.Draw(screenMesh);
-     
+        //DepthCall.Draw(drawables);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        //--------------NEEEDS ATTENTION
+        ComputeTester.use();
+        glDispatchCompute(SCR_WIDTH, SCR_HEIGHT, 1);
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        debugDepthCall.shader->use();
+        glActiveTexture(GL_TEXTURE0);
+        debugDepthCall.shader->setInt("DepthImage", 0);
+        glBindTexture(GL_TEXTURE_2D, compute_tex);
+        debugDepthCall.Draw(screenMesh);
+     ///-----------------
         
         lightMat =  glm::rotate(lightMat, .0001f, { 0.0f,1.0f,0.0f });
         finalLightMat = lightProj * lightMat;

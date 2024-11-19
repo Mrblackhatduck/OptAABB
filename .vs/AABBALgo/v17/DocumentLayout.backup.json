@@ -3,36 +3,36 @@
   "WorkspaceRootPath": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Includes\\Compute.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Includes\\Compute.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\F_Shadow.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Shaders\\F_Shadow.glsl||{8B382828-6202-11D1-8870-0000F87579D2}"
+      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\COMP_Test.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Shaders\\COMP_Test.glsl||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\V_Depth.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Shaders\\V_Depth.glsl||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\DEBUG\\F_DShowDepth.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Shaders\\DEBUG\\F_DShowDepth.glsl||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Includes\\Drawables.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Includes\\Drawables.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\V_Shadow.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Shaders\\V_Shadow.glsl||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Primatives.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Primatives.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Includes\\Shader.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Includes\\Shader.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\V_Depth.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Shaders\\V_Depth.glsl||{8B382828-6202-11D1-8870-0000F87579D2}"
+      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\F_Shadow.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Shaders\\F_Shadow.glsl||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\V_Shadow.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Shaders\\V_Shadow.glsl||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\F_Depth.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
@@ -46,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 15,
           "Children": [
             {
               "$type": "Document",
@@ -63,7 +63,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 2,
               "Title": "V_Depth.glsl",
               "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\V_Depth.glsl",
               "RelativeDocumentMoniker": "Shaders\\V_Depth.glsl",
@@ -72,19 +72,7 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2024-11-11T06:48:02.47Z",
-              "IsPinned": true
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Compute.h",
-              "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Includes\\Compute.h",
-              "RelativeDocumentMoniker": "Includes\\Compute.h",
-              "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Includes\\Compute.h",
-              "RelativeToolTip": "Includes\\Compute.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-11-19T13:09:36.849Z",
+              "IsPinned": true,
               "EditorCaption": ""
             },
             {
@@ -129,44 +117,59 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Primatives.cpp",
-              "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Primatives.cpp",
-              "RelativeDocumentMoniker": "Primatives.cpp",
-              "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Primatives.cpp",
-              "RelativeToolTip": "Primatives.cpp",
-              "ViewState": "AgIAADMAAAAAAAAAAAAswDkAAAAxAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-11-15T15:57:15.319Z"
+              "DocumentIndex": 3,
+              "Title": "F_DShowDepth.glsl",
+              "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\DEBUG\\F_DShowDepth.glsl",
+              "RelativeDocumentMoniker": "Shaders\\DEBUG\\F_DShowDepth.glsl",
+              "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\DEBUG\\F_DShowDepth.glsl",
+              "RelativeToolTip": "Shaders\\DEBUG\\F_DShowDepth.glsl",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-11-19T21:22:05.999Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 1,
+              "Title": "COMP_Test.glsl",
+              "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\COMP_Test.glsl",
+              "RelativeDocumentMoniker": "Shaders\\COMP_Test.glsl",
+              "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\COMP_Test.glsl",
+              "RelativeToolTip": "Shaders\\COMP_Test.glsl",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAA2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2024-11-19T20:43:10.116Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "Shader.h",
               "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Includes\\Shader.h",
               "RelativeDocumentMoniker": "Includes\\Shader.h",
               "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Includes\\Shader.h",
               "RelativeToolTip": "Includes\\Shader.h",
-              "ViewState": "AgIAABIAAAAAAAAAAAAAABwAAABIAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABEAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-11-14T22:52:58.64Z"
+              "WhenOpened": "2024-11-14T22:52:58.64Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "Main.cpp",
               "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Main.cpp",
               "RelativeDocumentMoniker": "Main.cpp",
               "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Main.cpp",
               "RelativeToolTip": "Main.cpp",
-              "ViewState": "AgIAAOYAAAAAAAAAAAAswPMAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAADsBAAAAAAAAAAAswEMBAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-11-13T10:56:22.394Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "F_Shadow.glsl",
               "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\F_Shadow.glsl",
               "RelativeDocumentMoniker": "Shaders\\F_Shadow.glsl",
@@ -178,7 +181,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 7,
               "Title": "V_Shadow.glsl",
               "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\V_Shadow.glsl",
               "RelativeDocumentMoniker": "Shaders\\V_Shadow.glsl",
@@ -190,15 +193,16 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "Drawables.h",
               "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Includes\\Drawables.h",
               "RelativeDocumentMoniker": "Includes\\Drawables.h",
               "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Includes\\Drawables.h",
               "RelativeToolTip": "Includes\\Drawables.h",
-              "ViewState": "AgIAAD8AAAAAAAAAAAAvwEwAAAAKAAAAAAAAAA==",
+              "ViewState": "AgIAAHQAAAAAAAAAAAAvwIAAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-11-11T08:27:22.485Z"
+              "WhenOpened": "2024-11-11T08:27:22.485Z",
+              "EditorCaption": ""
             }
           ]
         }
