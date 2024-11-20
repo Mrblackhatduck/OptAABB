@@ -5,6 +5,9 @@ in vec2 TexCoords;
 uniform sampler2D DepthImage;
 void main()
 {
-	float depthValue = texture(DepthImage, TexCoords).r;
-	FragColor = vec4(vec3(depthValue),1);
+	// Shadow map debug
+	//float depthValue = texture(DepthImage, TexCoords).r;
+	//FragColor = vec4(vec3(depthValue),1);
+	vec3 col = texture(DepthImage,TexCoords).rgb;
+	FragColor = vec4(col,1);
 }

@@ -162,9 +162,12 @@ float lastFrameTime;
 
 struct Texture
 {
-    uint id;
+    uint id = 0;
+    int width, height, loadedComponents;
 public:
-    Texture(uint Width, uint Height)
+    Texture(int Width, int Height):
+        width(Width),
+        height(Height)
     {
         glGenTextures(1, &id);
         glActiveTexture(GL_TEXTURE0);
@@ -174,9 +177,28 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Width, Height, 0, GL_RGBA, GL_FLOAT, NULL);
-        glBindImageTexture(0, id, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+        glBindImageTexture(0, id, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
 
+    }
+    //by default the texture loads an (RGBA) 4 comp
+    Texture(string& path, int requiredComponents = 4) : loadedComponents(0)
+    {
+       stbi_set_flip_vertically_on_load(true);
+       unsigned char* result =  stbi_load(path.c_str(), &width, &height, &loadedComponents, requiredComponents);
+       if (result == NULL) {
+           cout << "ERROR : Loading Texture file : [" << path.c_str() << "]\n";
+           return;
+       }
+       glGenTextures(1,&id);
+       glBindTexture(GL_TEXTURE_2D, id);
+       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, result);
+       glGenerateMipmap(GL_TEXTURE_2D);
+       glBindTexture(GL_TEXTURE_2D, 0);
     }
     operator uint()const 
     {
@@ -283,7 +305,10 @@ int main()
     //DebugDepthCall debugDepthCall(&DebugDepthShader,DepthCall.depthTexture);
     DebugDepthCall debugDepthCall(&DebugDepthShader,compute_tex);
     vector<Drawable*> screenMesh = { &screenQuad };
-     
+    
+
+    Texture sample_image = Texture(string("./Skul.PNG"));
+    
     float timer;
     float interval = 3;
     while (!glfwWindowShouldClose(window))
@@ -296,7 +321,7 @@ int main()
         //glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
         
         
-        mat4 Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, .1f, 100.0f) ;
+        /*mat4 Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, .1f, 100.0f) ;
         
         mat4 viewProj = Projection * cam.GetViewMatrix();
         Basic.shader->use();
@@ -307,20 +332,20 @@ int main()
         DepthCall.shader->setMat4("view", cam.GetViewMatrix());
         DepthCall.shader->setMat4("proj", Projection);
         DepthCall.shader->setVec3("lightPos", eye);
-        DepthCall.shader->setVec3("viewPos", cam.Position);
+        DepthCall.shader->setVec3("viewPos", cam.Position);*/
         
         //Basic.Draw(drawables);
         //DepthCall.Draw(drawables);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //--------------NEEEDS ATTENTION
         ComputeTester.use();
         glDispatchCompute(SCR_WIDTH, SCR_HEIGHT, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         debugDepthCall.shader->use();
-        glActiveTexture(GL_TEXTURE0);
-        debugDepthCall.shader->setInt("DepthImage", 0);
-        glBindTexture(GL_TEXTURE_2D, compute_tex);
+        glActiveTexture(GL_TEXTURE1);
+        debugDepthCall.shader->setInt("DepthImage", 1);
+        glBindTexture(GL_TEXTURE_2D, sample_image);
         debugDepthCall.Draw(screenMesh);
      ///-----------------
         

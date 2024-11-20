@@ -127,6 +127,7 @@ public:
     void Draw(vector<Drawable*>& drawables)override 
     {
         shader->use();
+        //shader->setInt("Depth")
         (drawables[0])->Draw(shader);
     }
 };
