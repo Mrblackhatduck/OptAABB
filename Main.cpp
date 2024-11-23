@@ -8,6 +8,7 @@
 #include <Primatives.h>
 #include <Shader.h>
 #include <thread>
+#include <Texture.h>
 //#include <bTree.h>
 
 #define TINYGLTF_IMPLEMENTATION
@@ -23,13 +24,6 @@ void cursorCallback(GLFWwindow* window,double x, double y);
 // settings
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
-
-
-const char* basicComputeShader = "\n"
-    "#versiom 430 core  \n"
-    "uniform \n"
-    "\n"
-    "\n";
 
 const char *vertSelection ="";
 const char *fragSelection ="";
@@ -160,52 +154,31 @@ float lastFrameTime;
 #include <random>
 
 
-struct Texture
+
+uint timeStart, timeEnd;    
+uint timerID[2];
+inline void InitTimer() 
 {
-    uint id = 0;
-    int width, height, loadedComponents;
-public:
-    Texture(int Width, int Height):
-        width(Width),
-        height(Height)
-    {
-        glGenTextures(1, &id);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D,id);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Width, Height, 0, GL_RGBA, GL_FLOAT, NULL);
-        glBindImageTexture(0, id, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-
-
+        glGenQueries(2, timerID);
+        glQueryCounter(timerID[0], GL_TIMESTAMP); 
+}
+inline void StartTimer() 
+{
+    glQueryCounter(timerID[0], GL_TIMESTAMP);
+}
+inline float EndTimer() 
+{
+    glQueryCounter(timerID[1], GL_TIMESTAMP);
+    int stopTimerAvailable = 0;
+    while (!stopTimerAvailable) {
+        glGetQueryObjectiv(timerID[1],GL_QUERY_RESULT_AVAILABLE,&stopTimerAvailable);
     }
-    //by default the texture loads an (RGBA) 4 comp
-    Texture(string& path, int requiredComponents = 4) : loadedComponents(0)
-    {
-       stbi_set_flip_vertically_on_load(true);
-       unsigned char* result =  stbi_load(path.c_str(), &width, &height, &loadedComponents, requiredComponents);
-       if (result == NULL) {
-           cout << "ERROR : Loading Texture file : [" << path.c_str() << "]\n";
-           return;
-       }
-       glGenTextures(1,&id);
-       glBindTexture(GL_TEXTURE_2D, id);
-       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, result);
-       glGenerateMipmap(GL_TEXTURE_2D);
-       glBindTexture(GL_TEXTURE_2D, 0);
-    }
-    operator uint()const 
-    {
-        return id;
-    }
-};
+    glGetQueryObjectuiv(timerID[0], GL_QUERY_RESULT, &timeStart);
+    glGetQueryObjectuiv(timerID[1], GL_QUERY_RESULT, &timeEnd);
 
+    //printf("Time spent on the GPU: %f ms\n", (timeStart - timeEnd) / 1000000.0);
+    return (timeStart - timeEnd) / 1000000.0;
+}
 int main()
 {
     //tinygltf::Model model;
@@ -242,14 +215,9 @@ int main()
         return -1;
     }
 
-
-    
-
-
-    
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    //glfwcursor(GL_FRONT_AND_BACK, GL_LINE);
+    
     glViewport(0,0,SCR_WIDTH, SCR_HEIGHT);
     
     cam.Position = {0.0f,0.0f,5.0f};
@@ -285,7 +253,7 @@ int main()
     mat4 finalLightMat = lightProj * lightMat;
    
     Shader depthShader("./Shaders/V_Depth.glsl", "./Shaders/F_Depth.glsl");
-    Shader ShadowShader("./Shaders/V_Shadow.glsl", "./Shaders/F_Shadow.glsl");
+    Shader ShadowShader("./Shaders/V_Shadow.glsl", "./Shaders/F_ShadowVolume.glsl");
     Shader DebugDepthShader("./Shaders/DEBUG/V_DShowDepth.glsl", "./Shaders/DEBUG/F_DShowDepth.glsl");
     Shader ComputeTester("./Shaders/COMP_Test.glsl");
     
@@ -302,8 +270,8 @@ int main()
 
     Texture compute_tex = Texture(SCR_WIDTH,SCR_HEIGHT);
     Quad screenQuad;
-    //DebugDepthCall debugDepthCall(&DebugDepthShader,DepthCall.depthTexture);
-    DebugDepthCall debugDepthCall(&DebugDepthShader,compute_tex);
+    DebugDepthCall debugDepthCall(&DebugDepthShader,DepthCall.depthTexture);
+    //DebugDepthCall debugDepthCall(&DebugDepthShader,compute_tex);
     vector<Drawable*> screenMesh = { &screenQuad };
     
 
@@ -311,6 +279,8 @@ int main()
     
     float timer;
     float interval = 3;
+
+    InitTimer();
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -321,7 +291,7 @@ int main()
         //glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
         
         
-        /*mat4 Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, .1f, 100.0f) ;
+        mat4 Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, .1f, 100.0f) ;
         
         mat4 viewProj = Projection * cam.GetViewMatrix();
         Basic.shader->use();
@@ -332,21 +302,29 @@ int main()
         DepthCall.shader->setMat4("view", cam.GetViewMatrix());
         DepthCall.shader->setMat4("proj", Projection);
         DepthCall.shader->setVec3("lightPos", eye);
-        DepthCall.shader->setVec3("viewPos", cam.Position);*/
-        
-        //Basic.Draw(drawables);
-        //DepthCall.Draw(drawables);
+        DepthCall.shader->setVec3("viewPos", cam.Position);
+        DepthCall.shader->setMat4("lightViewMatInv", glm::inverse(lightMat));
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        //Basic.Draw(drawables);
+        DepthCall.Draw(drawables);
+        
+        /*render the shadows to a texture and do it on a plane so you can modify single
+            screen pixels*/
+        
         //--------------NEEEDS ATTENTION
         ComputeTester.use();
+        error in the compute shader be careful
+        ComputeTester.setInt("DepthImage", 0);
         glDispatchCompute(SCR_WIDTH, SCR_HEIGHT, 1);
         glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
         debugDepthCall.shader->use();
-        glActiveTexture(GL_TEXTURE1);
-        debugDepthCall.shader->setInt("DepthImage", 1);
-        glBindTexture(GL_TEXTURE_2D, sample_image);
-        debugDepthCall.Draw(screenMesh);
+        glActiveTexture(GL_TEXTURE0);
+       debugDepthCall.shader->setInt("DepthImage", 0);
+        //StartTimer();
+       // glBindTexture(GL_TEXTURE_2D, debugDepthCall.DepthImageHandle);
+       debugDepthCall.Draw(screenMesh);
+        //printf("%f millisocends \n", EndTimer());
      ///-----------------
         
         lightMat =  glm::rotate(lightMat, .0001f, { 0.0f,1.0f,0.0f });

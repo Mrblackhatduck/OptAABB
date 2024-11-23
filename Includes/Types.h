@@ -9,6 +9,8 @@
 #include <functional>
 #include <string>
 
+#define PRNTF(frmt,args) printf(frmt,args);
+
 using string = std::string;
 using vec3 = glm::vec3;
 using quat = glm::quat;
