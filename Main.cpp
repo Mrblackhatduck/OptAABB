@@ -9,6 +9,7 @@
 #include <Shader.h>
 #include <thread>
 #include <Texture.h>
+
 //#include <bTree.h>
 
 #define TINYGLTF_IMPLEMENTATION
@@ -153,7 +154,64 @@ float lastFrameTime;
 
 #include <random>
 
+class Renderer {
+    virtual void Render(vector<Drawable*>& Drawables) = 0;
+};
+class DeferedRenderer:public Renderer {
+public:
+    uint GBuffer;
+    Texture Position;
+    Texture Normal;
+    Texture Albedo;
+    Texture Depth;
+    //uint gPos, gNormals, gColorSpec, gDepth;
+    std::shared_ptr<Shader> firstPassShader;
+    std::shared_ptr<Shader> finalPassShader;
+    DeferedRenderer(const uint ScreenWidth, const uint ScreenHeight) :
+        Position(ScreenWidth,ScreenHeight,TextureType::FRAMEBUFFER_ATTACHMENT),
+        Normal(ScreenWidth,ScreenHeight, TextureType::FRAMEBUFFER_ATTACHMENT),
+        Albedo(ScreenWidth,ScreenHeight, TextureType::FRAMEBUFFER_ATTACHMENT_ALBEDOSPEC),
+        Depth(ScreenWidth, ScreenHeight, TextureType::DEPTH)
+    {
+        glGenFramebuffers(1,&GBuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, GBuffer);
 
+        glBindTexture(GL_TEXTURE_2D, Position);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, Position,0);
+        
+        glBindTexture(GL_TEXTURE_2D, Normal);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, Normal, 0);
+        
+        glBindTexture(GL_TEXTURE_2D, Albedo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, Albedo, 0);
+        
+        glBindTexture(GL_TEXTURE_2D, Depth);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, Depth, 0);
+
+
+        unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+        glDrawBuffers(3, attachments);
+
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            std::cerr << "Framebuffer not complete!" << std::endl;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    }
+    void Render(vector<Drawable*>& Drawables) 
+    override
+    {
+        
+        firstPassShader->use();
+        for (auto item : Drawables) 
+        {
+            firstPassShader->setMat4("model", item->Transform);
+            item->Draw(firstPassShader.get());
+        }
+        
+    }
+
+};
 
 uint timeStart, timeEnd;    
 uint timerID[2];
@@ -255,9 +313,9 @@ int main()
     Shader depthShader("./Shaders/V_Depth.glsl", "./Shaders/F_Depth.glsl");
     Shader ShadowShader("./Shaders/V_Shadow.glsl", "./Shaders/F_ShadowVolume.glsl");
     Shader DebugDepthShader("./Shaders/DEBUG/V_DShowDepth.glsl", "./Shaders/DEBUG/F_DShowDepth.glsl");
+    std::shared_ptr<Shader> DeferedShader = std::make_shared<Shader>("./Shaders/Defered/V_Def.glsl", "./Shaders/Defered/F_Def.glsl");
     Shader ComputeTester("./Shaders/COMP_Test.glsl");
-    
-
+    std::shared_ptr<Shader> ComputeDefered = std::make_shared<Shader>("./Shaders/COMP_Defered.glsl");
     DrawCallDepth DepthCall(
         1024,1024,
         &finalLightMat,
@@ -268,19 +326,23 @@ int main()
     DepthCall.screenWidth = SCR_WIDTH;
 
 
-    Texture compute_tex = Texture(SCR_WIDTH,SCR_HEIGHT);
+    Texture compute_tex = Texture(SCR_WIDTH,SCR_HEIGHT,TextureType::BASIC);
     Quad screenQuad;
     DebugDepthCall debugDepthCall(&DebugDepthShader,DepthCall.depthTexture);
     //DebugDepthCall debugDepthCall(&DebugDepthShader,compute_tex);
     vector<Drawable*> screenMesh = { &screenQuad };
     
 
-    Texture sample_image = Texture(string("./Skul.PNG"));
+    Texture sample_image = Texture(string("./Skul.PNG"), TextureType::BASIC);
     
     float timer;
     float interval = 3;
-
+    DeferedRenderer deferedRenderer = DeferedRenderer(SCR_WIDTH,SCR_HEIGHT);
+    deferedRenderer.firstPassShader = DeferedShader;
     InitTimer();
+
+    Texture volumetrics = Texture(SCR_WIDTH, SCR_HEIGHT, TextureType::BASIC);
+    
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -304,25 +366,46 @@ int main()
         DepthCall.shader->setVec3("lightPos", eye);
         DepthCall.shader->setVec3("viewPos", cam.Position);
         DepthCall.shader->setMat4("lightViewMatInv", glm::inverse(lightMat));
+        
+        DeferedShader->use();
+        DeferedShader->setMat4("view",cam.GetViewMatrix());
+        DeferedShader->setMat4("proj",Projection);
+        DeferedShader->setVec4("BaseColor", {20.0f,20.0f,20.0f,1.0f});
+        glBindFramebuffer(GL_FRAMEBUFFER, deferedRenderer.GBuffer);
+        glClearColor(0.1f, 0.1f, .1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        deferedRenderer.Render(drawables);
+        glBindFramebuffer(GL_FRAMEBUFFER,0);
+
+
+        ////////////////  compute shader
+       //glBindTexture(GL_TEXTURE_2D, volumetrics);
+       ComputeDefered->use();
+       glActiveTexture(GL_TEXTURE0);
+       glBindTexture(GL_TEXTURE_2D, volumetrics);
+       ComputeDefered->setInt("result", 0);
+       glActiveTexture(GL_TEXTURE1);
+       glBindTexture(GL_TEXTURE_2D, deferedRenderer.Albedo);
+       ComputeDefered->setInt("albedo", 1);
+       glDispatchCompute(SCR_WIDTH, SCR_HEIGHT, 1);
+       glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         //Basic.Draw(drawables);
-        DepthCall.Draw(drawables);
+        //DepthCall.Draw(drawables);
         
-        /*render the shadows to a texture and do it on a plane so you can modify single
-            screen pixels*/
+        glClearColor(0.1f, 0.1f, .1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        //--------------NEEEDS ATTENTION
-        ComputeTester.use();
-        error in the compute shader be careful
-        ComputeTester.setInt("DepthImage", 0);
-        glDispatchCompute(SCR_WIDTH, SCR_HEIGHT, 1);
-        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        
+        
         debugDepthCall.shader->use();
+        glBindTexture(GL_TEXTURE_2D, volumetrics);
         glActiveTexture(GL_TEXTURE0);
+
        debugDepthCall.shader->setInt("DepthImage", 0);
+
         //StartTimer();
-       // glBindTexture(GL_TEXTURE_2D, debugDepthCall.DepthImageHandle);
+        glBindTexture(GL_TEXTURE_2D, volumetrics);
        debugDepthCall.Draw(screenMesh);
         //printf("%f millisocends \n", EndTimer());
      ///-----------------

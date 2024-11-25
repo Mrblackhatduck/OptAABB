@@ -27,6 +27,7 @@ using function = std::function<tp>;
 #define VAL_PTR(x) glm::value_ptr(x)
 //template <typename tp>
 //using unique_ptr = std::unique_ptr<tp>;
+////
 //
 //template <typename tp>
 //using shared_ptr = std::shared_ptr<tp>;

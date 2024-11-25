@@ -27,7 +27,11 @@ public:
    
     void setMat4(const std::string& name, const mat4& matrix4)const ;
     void setVec3(const std::string& name, const glm::vec3& value) const;
-    
+    void setVec4(const std::string& name, const glm::vec4& val)const;
+    operator unsigned int()const 
+    {
+        return ID;
+    }
 
 private:
    

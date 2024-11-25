@@ -11,8 +11,8 @@ void main() {
     ivec2 texelCoord = ivec2(gl_GlobalInvocationID.xy);
     value.x = float(texelCoord.x)/(gl_NumWorkGroups.x);
     value.y = float(texelCoord.y)/(gl_NumWorkGroups.y);
-	
-    value.r = 
+	value = vec4(5.0, 0.0, 0.0, 1.0);
+    //value.r = 
 //    if(texelCoord.x > .5f && texelCoord.y>.5f)
 //        {
 //        value.b = 1.0f;
