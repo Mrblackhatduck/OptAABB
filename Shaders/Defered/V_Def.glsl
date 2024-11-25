@@ -7,14 +7,14 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 
-out vec4 pos;
+out vec4 WorldPos;
 out vec3 norm;
 out vec2 texCoord;
 
 void main()
 {
-	pos = proj * view * model * vec4(vPos,1);
-	gl_Position = pos;
+	WorldPos = model * vec4(vPos,1);
 	norm = transpose(inverse(mat3(model))) * vNormal;
 	texCoord = TexCoords;
+	gl_Position = proj * view * WorldPos ;
 }

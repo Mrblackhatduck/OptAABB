@@ -8,6 +8,6 @@ void main()
 	// Shadow map debug
 //	float depthValue = texture(DepthImage, TexCoords).r;
 //	FragColor = vec4(vec3(depthValue),1);
-	vec3 col = texture(DepthImage,TexCoords).rgb;
-	FragColor = vec4(col,1);
+	vec4 col = texture(DepthImage,TexCoords);
+	FragColor = col;
 }

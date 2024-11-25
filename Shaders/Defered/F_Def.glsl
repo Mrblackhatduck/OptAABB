@@ -1,6 +1,6 @@
 #version 430 core
 
-in vec4 pos;
+in vec4 WorldPos;
 in vec3 norm;
 in vec2 texCoord;
 
@@ -12,7 +12,7 @@ layout (location = 2) out vec4 Albedo;
 uniform vec4 BaseColor;
 void main()
 {
-position = pos;
+position = WorldPos;
 Normals = normalize(norm);
 Albedo  = BaseColor;
 }
