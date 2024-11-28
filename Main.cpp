@@ -379,27 +379,35 @@ int main()
         DepthCall.Draw(drawables);
         ////////////////  compute shader
        //glBindTexture(GL_TEXTURE_2D, volumetrics);
-       ComputeDefered->use();
+        debugDepthCall.shader->use();
        glActiveTexture(GL_TEXTURE0);
        glBindTexture(GL_TEXTURE_2D, volumetrics);
-       ComputeDefered->setInt("result", 0);
+       debugDepthCall.shader->setInt("result", 0);
        
        glActiveTexture(GL_TEXTURE1);
        glBindTexture(GL_TEXTURE_2D, deferedRenderer.Albedo);
-       ComputeDefered->setInt("albedo", 1);
+       debugDepthCall.shader->setInt("albedo", 1);
 
        glActiveTexture(GL_TEXTURE2);
        glBindTexture(GL_TEXTURE_2D, deferedRenderer.Position);
-       ComputeDefered->setInt("position", 2);
+       debugDepthCall.shader->setInt("position", 2);
 
        glActiveTexture(GL_TEXTURE3);
        glBindTexture(GL_TEXTURE_2D, DepthCall.depthTexture);
-       ComputeDefered->setInt("shadowMap", 3);
+       debugDepthCall.shader->setInt("shadowMap", 3);
 
-       ComputeDefered->setMat4("LightMatrix", finalLightMat);
+       glActiveTexture(GL_TEXTURE4);
+       glBindTexture(GL_TEXTURE_2D, deferedRenderer.Normal);
+       debugDepthCall.shader->setInt("normal", 4);
 
-       glDispatchCompute(SCR_WIDTH, SCR_HEIGHT, 1);
-       glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+       debugDepthCall.shader->setMat4("LightMatrix", finalLightMat);
+
+       debugDepthCall.shader->setMat4("projectionMatrix",Projection);
+       debugDepthCall.shader->setMat4("viewMatrix",cam.GetViewMatrix());
+       debugDepthCall.shader->setVec3("camPos",cam.Position);
+       //-----------glDispatchCompute(SCR_WIDTH, SCR_HEIGHT, 1);
+       //-----------glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         //Basic.Draw(drawables);
         
@@ -409,17 +417,17 @@ int main()
         
         
         
-        debugDepthCall.shader->use();
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, volumetrics);
-        debugDepthCall.shader->setInt("DepthImage", 0);
+        //debugDepthCall->use();
+        //glActiveTexture(GL_TEXTURE0);
+        //glBindTexture(GL_TEXTURE_2D, volumetrics);
+        //debugDepthCall.shader->setInt("DepthImage", 0);
 
         debugDepthCall.Draw(screenMesh);
         //printf("%f millisocends \n", EndTimer());
      ///-----------------
         
-        lightMat =  glm::rotate(lightMat, .0001f, { 0.0f,1.0f,0.0f });
-        finalLightMat = lightProj * lightMat;
+        //lightMat =  glm::rotate(lightMat, .0001f, { 0.0f,1.0f,0.0f });
+        //finalLightMat = lightProj * lightMat;
 
         glfwSwapBuffers(window);
         glfwPollEvents();
