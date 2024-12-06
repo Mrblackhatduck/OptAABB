@@ -83,7 +83,7 @@ public:
 
 
         //GLuint modelMatLocation = glGetUniformLocation(depthShader.ID, "model");
-        glCullFace(GL_FRONT);
+        //glCullFace(GL_FRONT);
         
         depthShader->use();
         depthShader->setMat4("lightSpaceMatrix", (*LightMatrix));
@@ -98,21 +98,23 @@ public:
 
         glBindFramebuffer(GL_FRAMEBUFFER,0);
         glViewport(0, 0, screenWidth, screenHeight);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glCullFace(GL_BACK);
-        shader->use();
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, depthTexture);
-        shader->setMat4("lightSpaceMatrix",*(LightMatrix));
-        //shader.setMat4("mode");
-        for (auto drw : drawables) 
-        {
-            //temp = (drw)->Transform;
-            shader->setMat4("model", drw->Transform);
-            //glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, VAL_PTR(temp));
-            drw->Draw(shader);
-        }
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        //
+        ////glCullFace(GL_BACK);
+        //
+        //shader->use();
+        //glActiveTexture(GL_TEXTURE0);
+        //glBindTexture(GL_TEXTURE_2D, depthTexture);
+        //shader->setMat4("lightSpaceMatrix",*(LightMatrix));
+        ////shader.setMat4("mode");
+        //for (auto drw : drawables) 
+        //{
+        //    //temp = (drw)->Transform;
+        //    shader->setMat4("model", drw->Transform);
+        //    //glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, VAL_PTR(temp));
+        //    drw->Draw(shader);
+        //}
     }
 };
 

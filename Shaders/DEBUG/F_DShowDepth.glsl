@@ -1,22 +1,25 @@
 #version 430 core
-
+#define M_PI 3.14159265359
 out vec4 FragColor;
 in vec2 TexCoords;
+
+
 uniform sampler2D DepthImage;
-
-
 uniform sampler2D albedo;
 uniform sampler2D position;
-uniform sampler2D shadowMap;
 uniform sampler2D normal;
+uniform sampler2D shadowMap;
 
 uniform mat4 LightMatrix;
+uniform vec3 LightForward;
+uniform vec3 LightPos;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 uniform vec3 camPos;
 
-float CalculateShadow(vec4 positionWorld,vec3 Normal)
+float CalculateShadow(vec4 positionWorld,vec3 Normal,bool filtered)
 {
+    Normal = normalize(Normal);
     vec4 positionLightSpace = LightMatrix * positionWorld;
     vec3 positionLight3 = positionLightSpace.xyz / positionLightSpace.w; 
     positionLight3 = positionLight3* .5 + .5;
@@ -25,32 +28,46 @@ float CalculateShadow(vec4 positionWorld,vec3 Normal)
     
     float currentDepth = positionLight3.z;
     
-
-    vec3 lightForward = normalize(vec3(LightMatrix[2][0], LightMatrix[2][1], LightMatrix[2][2]));
     
-    float bias = max(0.00004 * (1.0 - dot(Normal, lightForward)), 0.00004);
-    //float bias = .0002f;
-
+    vec3 lightVec = normalize(LightPos - positionWorld.xyz);
     
-    float shadow = 0.0;
+    //float bias = max(0.05 * (1.0 - dot(Normal, LightForward)), 0.005);
+//    float cosTheta = dot(Normal, lightForward);
+//    float bias = 0.005*tan(acos(cosTheta)); // cosTheta is dot( n,l ), clamped between 0 and 1
+//       bias = clamp(bias, 0,0.01);
+
+    vec3 normal = normalize(Normal);
+    vec3 lightDir = normalize(LightPos - positionWorld.xyz);
+    float bias = max(0.005 * (1.0 - dot(Normal, lightDir)), 0.0005);
+      float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     for(int x = -1; x <= 1; ++x)
     {
         for(int y = -1; y <= 1; ++y)
         {
             float pcfDepth = texture(shadowMap, positionLight3.xy + vec2(x, y) * texelSize).r; 
-            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
+            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
         }    
     }
     shadow /= 9.0;
-
+    
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
     if(positionLight3.z > 1.0)
         shadow = 0.0;
-
+        
     return shadow;
     
 }
 
+float computeScattering(vec3 worldPosition)
+{
+    //vec3 viewPos = viewMatrix[3].xyz;
+    //vec3 lightPos = LightMatrix[3].xyz;
+    float g = 0;
+    float costh = dot(normalize(worldPosition -LightPos), normalize(worldPosition - camPos));
+    return (1.0 - g * g) / (4.0 * M_PI * pow(1.0 + g * g - 2.0 * g * costh, 3.0/2.0));
+    
+}
 vec4 ScreenToWorld(vec3 point)
 {
     float ndc_x = (point.x * 2) -1;
@@ -77,8 +94,8 @@ float March(vec2 point,float marchSteps,float maxMarchDistance)
     for(int i=0; i<marchSteps; i++)
     {
         pointWorld = start + (direction * marchUnit * i);
-        if(CalculateShadow(vec4(pointWorld,1),vec3(1.0))>.1)
-            value += .05f;
+        if(CalculateShadow(vec4(pointWorld,1),texture(normal,TexCoords).rgb,true)>.1)
+            value += computeScattering(pointWorld);
 
     }
 
@@ -92,16 +109,20 @@ void main()
 	// Shadow map debug
 //	float depthValue = texture(DepthImage, TexCoords).r;
 //	FragColor = vec4(vec3(depthValue),1);
+
+
+
     vec4 position = texture(position,TexCoords);
-    vec3 normal = texture(normal,TexCoords).rgb;
+    vec3 _normal = texture(normal,TexCoords).rgb;
 	vec4 col = texture(albedo,TexCoords);
-	col = (1-CalculateShadow(position,normal)) * col;
-    float marchVal = March(TexCoords,30,20);
-    vec3 texCoordNdc = vec3(TexCoords.x - .5);
-    float dist = distance (ScreenToWorld(vec3(TexCoords,.3f)).xyz,position.xyz);
+	col = (1-CalculateShadow(position,_normal,true)) * col;
+    float marchVal = March(TexCoords,40,10);
+    
+    
     if(marchVal < .1f)
     {
-        col += vec4(1,0,0,1);
+        
+        col += vec4(.5f,.4f,.4f,marchVal);
     }
     
 	FragColor = col;

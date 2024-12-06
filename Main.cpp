@@ -302,11 +302,12 @@ int main()
     DrawCall Basic(&basicShader);
     
     mat4 lightMat = mat4(1.0f);
-    vec3 eye = { -2.0f, 10.0f, -1.0f };
+    vec3 eye = { -2.0f, 20.0f, -5.0f };
     vec3 target = { 0,3,0 };
     vec3 up = { 0,1,0 };
     lightMat = glm::lookAt(eye, target, up);
-    mat4 lightProj = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, 1.0f, 700.0f);
+        //glm::lookAt(eye, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+    mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 50.5f);
     
     mat4 finalLightMat = lightProj * lightMat;
    
@@ -379,7 +380,7 @@ int main()
         DepthCall.Draw(drawables);
         ////////////////  compute shader
        //glBindTexture(GL_TEXTURE_2D, volumetrics);
-        debugDepthCall.shader->use();
+       debugDepthCall.shader->use();
        glActiveTexture(GL_TEXTURE0);
        glBindTexture(GL_TEXTURE_2D, volumetrics);
        debugDepthCall.shader->setInt("result", 0);
@@ -393,12 +394,14 @@ int main()
        debugDepthCall.shader->setInt("position", 2);
 
        glActiveTexture(GL_TEXTURE3);
-       glBindTexture(GL_TEXTURE_2D, DepthCall.depthTexture);
-       debugDepthCall.shader->setInt("shadowMap", 3);
-
-       glActiveTexture(GL_TEXTURE4);
        glBindTexture(GL_TEXTURE_2D, deferedRenderer.Normal);
-       debugDepthCall.shader->setInt("normal", 4);
+       debugDepthCall.shader->setInt("normal", 3);
+       
+       glActiveTexture(GL_TEXTURE4);
+       glBindTexture(GL_TEXTURE_2D, DepthCall.depthTexture);
+       debugDepthCall.shader->setInt("shadowMap", 4);
+
+      
 
 
        debugDepthCall.shader->setMat4("LightMatrix", finalLightMat);
@@ -406,11 +409,14 @@ int main()
        debugDepthCall.shader->setMat4("projectionMatrix",Projection);
        debugDepthCall.shader->setMat4("viewMatrix",cam.GetViewMatrix());
        debugDepthCall.shader->setVec3("camPos",cam.Position);
+       debugDepthCall.shader->setVec3("LightForward",target-eye);
+       debugDepthCall.shader->setVec3("LightPos",eye);
+
        //-----------glDispatchCompute(SCR_WIDTH, SCR_HEIGHT, 1);
        //-----------glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         //Basic.Draw(drawables);
-        
+       glCullFace(GL_BACK);
         
         glClearColor(0.1f, 0.1f, .1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
