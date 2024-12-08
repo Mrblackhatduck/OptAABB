@@ -302,7 +302,7 @@ int main()
     DrawCall Basic(&basicShader);
     
     mat4 lightMat = mat4(1.0f);
-    vec3 eye = { -2.0f, 20.0f, -5.0f };
+    vec3 eye = { -2.0f, 30.0f, -5.0f };
     vec3 target = { 0,3,0 };
     vec3 up = { 0,1,0 };
     lightMat = glm::lookAt(eye, target, up);
@@ -377,6 +377,7 @@ int main()
         deferedRenderer.Render(drawables);
         glBindFramebuffer(GL_FRAMEBUFFER,0);
 
+        glCullFace(GL_FRONT);
         DepthCall.Draw(drawables);
         ////////////////  compute shader
        //glBindTexture(GL_TEXTURE_2D, volumetrics);

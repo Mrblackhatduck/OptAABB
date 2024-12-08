@@ -59,14 +59,20 @@ float CalculateShadow(vec4 positionWorld,vec3 Normal,bool filtered)
     
 }
 
+float Shlick(float k, float costh)
+{
+    return (1.0 - k * k) / (4.0 * M_PI * pow(1.0 + k * costh, 2.0));
+}
 float computeScattering(vec3 worldPosition)
 {
     //vec3 viewPos = viewMatrix[3].xyz;
     //vec3 lightPos = LightMatrix[3].xyz;
-    float g = 0;
+    float g = .5f;
     float costh = dot(normalize(worldPosition -LightPos), normalize(worldPosition - camPos));
-    return (1.0 - g * g) / (4.0 * M_PI * pow(1.0 + g * g - 2.0 * g * costh, 3.0/2.0));
+    //return (1.0 - k * k) / (4.0 * M_PI * pow(1.0 + k * costh, 2.0));
     
+    return (1.0 - g * g) / (4.0 * M_PI * pow(1.0 + g * g - 2.0 * g * costh, 3.0/2.0));
+  
 }
 vec4 ScreenToWorld(vec3 point)
 {
@@ -116,13 +122,13 @@ void main()
     vec3 _normal = texture(normal,TexCoords).rgb;
 	vec4 col = texture(albedo,TexCoords);
 	col = (1-CalculateShadow(position,_normal,true)) * col;
-    float marchVal = March(TexCoords,40,10);
+    float marchVal = March(TexCoords,40,15);
     
     
-    if(marchVal < .1f)
+    if(marchVal < .5f)
     {
         
-        col += vec4(.5f,.4f,.4f,marchVal);
+        col += vec4(.5f - marchVal,.4f -marchVal,.4f - marchVal,marchVal);
     }
     
 	FragColor = col;
