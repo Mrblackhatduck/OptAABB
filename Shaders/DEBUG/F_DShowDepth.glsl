@@ -38,7 +38,7 @@ float CalculateShadow(vec4 positionWorld,vec3 Normal,bool filtered)
 
     vec3 normal = normalize(Normal);
     vec3 lightDir = normalize(LightPos - positionWorld.xyz);
-    float bias = max(0.005 * (1.0 - dot(Normal, lightDir)), 0.0005);
+    float bias = max(0.05 * (1.0 - dot(Normal, lightDir)), 0.05);
       float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     for(int x = -1; x <= 1; ++x)
@@ -125,7 +125,7 @@ void main()
     float marchVal = March(TexCoords,40,15);
     
     
-    if(marchVal < .5f)
+    if(marchVal < 1.0f)
     {
         
         col += vec4(.5f - marchVal,.4f -marchVal,.4f - marchVal,marchVal);

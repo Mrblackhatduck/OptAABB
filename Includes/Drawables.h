@@ -83,7 +83,7 @@ public:
 
 
         //GLuint modelMatLocation = glGetUniformLocation(depthShader.ID, "model");
-        glCullFace(GL_FRONT);
+        //glCullFace(GL_FRONT);
         
         depthShader->use();
         depthShader->setMat4("lightSpaceMatrix", (*LightMatrix));

@@ -281,15 +281,18 @@ int main()
     cam.Position = {0.0f,0.0f,5.0f};
     glEnable(GL_DEPTH_TEST);
 
-    mat4 transform = Transform::createModelMatrix(vec3(0.0f,0.0f,0.0f),vec3(0.0f,0.0f,0.0f),vec3(1.0f,1.00f,1.0f));
+    //mat4 transform = Transform::createModelMatrix(vec3(0.0f,0.0f,0.0f),vec3(0.0f,0.0f,0.0f),vec3(1.0f,1.00f,1.0f));
     Cube cube;
-    cube.Transform = transform;
+    cube.Transform = mat4(1.0f);
     cube.Transform = glm::translate(cube.Transform, { 0.0f,2.0f,-3.0f });
     
     Cube rect;
-    rect.Transform = transform;//Transform::createModelMatrix(vec3( 1.0f,1.0f,0.0f ), vec3( 0.0f,0.0f,0.0f ), vec3( 3.0f,0.5f,3.0f ));
+    rect.Transform = mat4(1.0f);
     rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
     rect.Transform = glm::scale(rect.Transform, { 7.0f,0.5f,7.0f });
+    //rect.Transform = transform;//Transform::createModelMatrix(vec3( 1.0f,1.0f,0.0f ), vec3( 0.0f,0.0f,0.0f ), vec3( 3.0f,0.5f,3.0f ));
+    //rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
+    //rect.Transform = glm::scale(rect.Transform, { 7.0f,0.5f,7.0f });
     
     
     vector <Drawable*> drawables;
@@ -307,7 +310,7 @@ int main()
     vec3 up = { 0,1,0 };
     lightMat = glm::lookAt(eye, target, up);
         //glm::lookAt(eye, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-    mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 50.5f);
+    mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.5f, 30.5f);
     
     mat4 finalLightMat = lightProj * lightMat;
    
@@ -377,7 +380,7 @@ int main()
         deferedRenderer.Render(drawables);
         glBindFramebuffer(GL_FRAMEBUFFER,0);
 
-        glCullFace(GL_FRONT);
+        
         DepthCall.Draw(drawables);
         ////////////////  compute shader
        //glBindTexture(GL_TEXTURE_2D, volumetrics);
