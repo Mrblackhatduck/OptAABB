@@ -13,6 +13,7 @@
 
 using string = std::string;
 using vec3 = glm::vec3;
+using vec2 = glm::vec2;
 using quat = glm::quat;
 using mat4 = glm::mat4;
 

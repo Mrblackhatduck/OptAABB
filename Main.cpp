@@ -10,6 +10,8 @@
 #include <thread>
 #include <Texture.h>
 
+
+
 //#include <bTree.h>
 
 #define TINYGLTF_IMPLEMENTATION
@@ -29,7 +31,20 @@ unsigned int SCR_HEIGHT = 600;
 const char *vertSelection ="";
 const char *fragSelection ="";
 
+class Mesh {
+    #define ALBEDO_INDX_1 0
+    #define ALBEDO_INDX_2 1
+    #define NRML_INDX 2
+    #define SPEC_INDX 3
+public:
+    int BaseVertex;
+    int VerteciesCount;
 
+    int BaseIndex;
+    int IndeciesCount;
+
+    uint Textures[4];
+};
 #pragma region meshLoader
 
 void bindMesh(std::map<int, GLuint>& vbos,
@@ -145,6 +160,220 @@ void bindMesh(std::map<int, GLuint>& vbos,
     }
 }
 
+tinygltf::TinyGLTF loader;
+class Model :public Drawable
+{
+    uint ID, EBO;
+public:
+    void Draw(Shader* shader)
+        override
+    {
+        shader->setMat4("model", this->Transform);
+        glBindVertexArray(ID);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glDrawElements(GL_TRIANGLES, NumOfIndices, GL_UNSIGNED_INT, 0);
+       /* for(const auto& mesh:meshes)
+            glDrawElementsBaseVertex(GL_TRIANGLES,mesh.BaseIndex,GL_UNSIGNED_INT,0,mesh.IndeciesCount);*/
+        //glDrawElementsBaseVertex(GL_TRIANGLES, NumOfIndices, GL_UNSIGNED_INT, 0);
+
+    }
+
+    vector<Mesh> meshes;
+    std::unordered_map<string,uint> textures;
+    uint NumOfIndices;
+    Model():
+        NumOfIndices(0),
+        ID(0),
+        EBO(0),
+        meshes(vector<Mesh>())
+        
+    {
+        this->Transform = (mat4(1.0f));
+    }
+    Model(vector<vec3>& Positions, vector<vec3>& Normals, vector<vec2>& TextureCoords, vector<uint>& indices) :
+        NumOfIndices(indices.size()),
+        meshes(vector<Mesh>())
+    {
+        uint vboPos, vboNorm, vboTexCoord;
+        glGenVertexArrays(1, &ID);
+        glBindVertexArray(ID);
+        glGenBuffers(1, &vboPos);
+        glGenBuffers(1, &vboNorm);
+        glGenBuffers(1, &vboTexCoord);
+        glGenBuffers(1, &EBO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vboPos);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Positions), &Positions[0], GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vboNorm);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Normals), &Normals[0], GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vboTexCoord);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(TextureCoords), &TextureCoords[0], GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindVertexArray(0);
+    }
+    void InitModel(vector<vec3>& Positions, vector<vec3>& Normals, vector<vec2>& TextureCoords, vector<uint>& indices) 
+    {
+        uint vboPos, vboNorm, vboTexCoord;
+        glGenVertexArrays(1, &ID);
+        glBindVertexArray(ID);
+        glGenBuffers(1, &vboPos);
+        glGenBuffers(1, &vboNorm);
+        glGenBuffers(1, &vboTexCoord);
+        glGenBuffers(1, &EBO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vboPos);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Positions), &Positions[0], GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vboNorm);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Normals), &Normals[0], GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vboTexCoord);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(TextureCoords), &TextureCoords[0], GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindVertexArray(0);
+    }
+   /* ~Model() 
+    {
+        glDeleteBuffers(GL_ELEMENT_ARRAY_BUFFER,&EBO);
+        glDeleteVertexArrays(1, &ID);
+    }*/
+    void Delete() 
+    {
+        glDeleteBuffers(GL_ELEMENT_ARRAY_BUFFER, &EBO);
+        glDeleteVertexArrays(1, &ID);
+    }
+};
+
+Model LoadModel(string& filePath) 
+{
+    tinygltf::Model model;
+    string errors;
+    string warnings;
+    uint checkSections;
+   Model _model;
+   bool ret = loader.LoadASCIIFromFile(&model,&errors,&warnings,filePath);
+   
+   if (warnings.size() > 0)
+       std::cout << warnings << "\n";
+   
+   if (errors.size() > 0) {
+
+       std::cout << errors << "\n";
+       return _model;
+   }
+   //model.meshes[0].
+   vector<vec3> _positions;
+   vector<vec3> _normals;
+   vector<vec2> _texCoords;
+   vector<uint> _indices;
+   int currentVertexIndex = 0;
+   int currentIndex = 0;
+   for(tinygltf::Mesh& msh : model.meshes ) 
+   {
+       Mesh mesh;
+       mesh.BaseVertex = currentVertexIndex;
+       mesh.BaseIndex = currentIndex;
+       
+       for (int i = 0; i < msh.primitives.size(); i++) 
+       {
+           const auto& positions = msh.primitives[i].attributes["POSITION"];
+           const auto& normals = msh.primitives[i].attributes["NORMAL"];
+           const auto& textureCoords = msh.primitives[i].attributes["TEXCOORD_0"];
+           const auto& indices = msh.primitives[i].indices;
+
+
+           // read positions
+           const auto& accessor = model.accessors[positions];
+           const auto& bufferView = model.bufferViews[accessor.bufferView];
+           const auto& buffer = model.buffers[bufferView.buffer];
+
+           
+           const float* vertexData = reinterpret_cast<const float*>(buffer.data.data() + accessor.byteOffset);
+
+           // Access individual vertex positions
+           for (size_t i = 0; i < accessor.count; ++i) {
+               float x = vertexData[i * 3 + 0];
+               float y = vertexData[i * 3 + 1];
+               float z = vertexData[i * 3 + 2];
+               // ... use x, y, z
+               _positions.push_back({ x,y,z });
+           }
+           currentVertexIndex += accessor.count;
+
+           const auto& accessor_normal = model.accessors[normals];
+           const auto& bufferView_normals = model.bufferViews[accessor_normal.bufferView];
+           const auto& buffer_normals = model.buffers[bufferView_normals.buffer];
+
+           const float* vertexNormals = reinterpret_cast<const float*>(buffer_normals.data.data() + accessor_normal.byteOffset);
+           for (size_t i = 0; i < accessor.count; i++) 
+           {
+               float x = vertexNormals[i * 3 + 0];
+               float y = vertexNormals[i * 3 + 1];
+               float z = vertexNormals[i * 3 + 2];
+               _normals.push_back({ x,y,z });
+           }
+
+           const auto& accessor_texCord = model.accessors[textureCoords];
+           const auto& bufferViewTexCoor = model.bufferViews[accessor_texCord.bufferView];
+           const auto& bufferTexCoord = model.buffers[bufferViewTexCoor.buffer];
+
+           const float* TexCoords = reinterpret_cast<const float*>(bufferTexCoord.data.data() + accessor_texCord.byteOffset);
+       
+           for (size_t i = 0; i < accessor_texCord.count; i++)
+           {
+               float x = TexCoords[i * 2 + 0];
+               float y = TexCoords[i * 2 + 1];
+               _texCoords.push_back({ x,y });
+           }
+
+           const auto& indicesAccessor = model.accessors[indices];
+           const auto& indicesBufferView = model.bufferViews[indicesAccessor.bufferView];
+           const auto& indicesBuffer = model.buffers[indicesBufferView.buffer];
+
+           const uint16_t* indicesData = reinterpret_cast<const uint16_t*>(indicesBuffer.data.data() + indicesAccessor.byteOffset);
+
+           for (size_t i = 0; i < indicesAccessor.count; i++) 
+           {
+               _indices.push_back(indicesData[i]);
+           }
+           currentIndex += indicesAccessor.count;
+           _model.NumOfIndices += indicesAccessor.count;
+       }
+       mesh.VerteciesCount = currentVertexIndex - mesh.BaseVertex;
+       mesh.IndeciesCount = currentIndex - mesh.BaseIndex;
+       _model.meshes.push_back(mesh);
+   }
+   _model.InitModel(_positions, _normals, _texCoords, _indices);
+   return _model;
+}
+
+
 #pragma endregion
 
 using std::cout;
@@ -153,6 +382,7 @@ float deltaTime;
 float lastFrameTime;
 
 #include <random>
+
 
 class Renderer {
     virtual void Render(vector<Drawable*>& Drawables) = 0;
@@ -290,6 +520,12 @@ int main()
     rect.Transform = mat4(1.0f);
     rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
     rect.Transform = glm::scale(rect.Transform, { 7.0f,0.5f,7.0f });
+    string modelpath = string("./Res/Models/Cube.gltf");
+    Model model = LoadModel(modelpath);
+    model.Transform = mat4(1.0f);
+    model.Transform = glm::translate(rect.Transform, { 0.0f,3.5f,3.0f });
+    model.Transform = glm::scale(rect.Transform, { 1.0f,0.5f,1.0f });
+    
     //rect.Transform = transform;//Transform::createModelMatrix(vec3( 1.0f,1.0f,0.0f ), vec3( 0.0f,0.0f,0.0f ), vec3( 3.0f,0.5f,3.0f ));
     //rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
     //rect.Transform = glm::scale(rect.Transform, { 7.0f,0.5f,7.0f });
@@ -298,6 +534,7 @@ int main()
     vector <Drawable*> drawables;
     drawables.push_back(&cube);
     drawables.push_back(&rect);
+    drawables.push_back(&model);
     
     //drawables.push_back(&p2);
 
@@ -436,7 +673,7 @@ int main()
         //printf("%f millisocends \n", EndTimer());
      ///-----------------
         
-        //lightMat =  glm::rotate(lightMat, .0001f, { 0.0f,1.0f,0.0f });
+        cube.Transform =  glm::rotate(cube.Transform, .0005f, { 0.0f,1.0f,0.0f });
         //finalLightMat = lightProj * lightMat;
 
         glfwSwapBuffers(window);

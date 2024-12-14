@@ -31,15 +31,13 @@ float CalculateShadow(vec4 positionWorld,vec3 Normal,bool filtered)
     
     vec3 lightVec = normalize(LightPos - positionWorld.xyz);
     
-    //float bias = max(0.05 * (1.0 - dot(Normal, LightForward)), 0.005);
-//    float cosTheta = dot(Normal, lightForward);
-//    float bias = 0.005*tan(acos(cosTheta)); // cosTheta is dot( n,l ), clamped between 0 and 1
-//       bias = clamp(bias, 0,0.01);
-
+ 
+float shadow = 0.0;
+if(filtered){
     vec3 normal = normalize(Normal);
     vec3 lightDir = normalize(LightPos - positionWorld.xyz);
-    float bias = max(0.05 * (1.0 - dot(Normal, lightDir)), 0.05);
-      float shadow = 0.0;
+    float bias = max(0.05 * (1.0 - dot(Normal, lightDir)), 0.0005);
+      
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     for(int x = -1; x <= 1; ++x)
     {
@@ -49,8 +47,11 @@ float CalculateShadow(vec4 positionWorld,vec3 Normal,bool filtered)
             shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
         }    
     }
-    shadow /= 9.0;
-    
+    //shadow /= 9.0;
+}else
+//    {
+//        shadow
+//    }
     // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
     if(positionLight3.z > 1.0)
         shadow = 0.0;
@@ -122,10 +123,10 @@ void main()
     vec3 _normal = texture(normal,TexCoords).rgb;
 	vec4 col = texture(albedo,TexCoords);
 	col = (1-CalculateShadow(position,_normal,true)) * col;
-    float marchVal = March(TexCoords,40,15);
+    float marchVal = March(TexCoords,40,30);
     
     
-    if(marchVal < 1.0f)
+    if(marchVal < .5f  )
     {
         
         col += vec4(.5f - marchVal,.4f -marchVal,.4f - marchVal,marchVal);
