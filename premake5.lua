@@ -11,7 +11,7 @@ workspace "AABBALgo"
             "./Dependencies/glm/",
             "./Dependencies/GL4.3/include/", 
             "./Dependencies/stb_image/", 
-            "./Dependencies/tinyGltf/", 
+            "./Dependencies/fastgltf/", 
             "./Dependencies/"
         }
         files
@@ -26,9 +26,18 @@ workspace "AABBALgo"
         }
         libdirs
         {
-            "./Libs/lib-vc2019"
+            "./Libs/lib-vc2019",
+            "./Libs"
         }
+        filter "configurations:Debug"
+        links{"fastgltf-d.lib"}
+
+        filter "configurations:Release"
+        links{"fastgltf.lib"}
+        
+        filter{}
         links{
             "glfw3dll.lib"
+            
         }
         targetdir "./build"

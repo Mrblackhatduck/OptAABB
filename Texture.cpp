@@ -1,5 +1,6 @@
 #include <Texture.h>
 #include <glad/glad.h>
+#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 Texture::Texture(int Width, int Height, TextureType loadType) :

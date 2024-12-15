@@ -8,16 +8,14 @@
 #include <Primatives.h>
 #include <Shader.h>
 #include <thread>
+
 #include <Texture.h>
 
 
 
 //#include <bTree.h>
 
-#define TINYGLTF_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <tiny_gltf.h>
+
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 #include <Types.h>
 
@@ -47,120 +45,8 @@ public:
 };
 #pragma region meshLoader
 
-void bindMesh(std::map<int, GLuint>& vbos,
-    tinygltf::Model& model, tinygltf::Mesh& mesh) {
-    for (size_t i = 0; i < model.bufferViews.size(); ++i) {
-        const tinygltf::BufferView& bufferView = model.bufferViews[i];
-        if (bufferView.target == 0) {  // TODO impl drawarrays
-            std::cout << "WARN: bufferView.target is zero" << std::endl;
-            continue;  // Unsupported bufferView.
-            /*
-              From spec2.0 readme:
-              https://github.com/KhronosGroup/glTF/tree/master/specification/2.0
-                       ... drawArrays function should be used with a count equal to
-              the count            property of any of the accessors referenced by the
-              attributes            property            (they are all equal for a given
-              primitive).
-            */
-        }
 
-        const tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
-        std::cout << "bufferview.target " << bufferView.target << std::endl;
 
-        GLuint vbo;
-        glGenBuffers(1, &vbo);
-        vbos[i] = vbo;
-        glBindBuffer(bufferView.target, vbo);
-
-        std::cout << "buffer.data.size = " << buffer.data.size()
-            << ", bufferview.byteOffset = " << bufferView.byteOffset
-            << std::endl;
-
-        glBufferData(bufferView.target, bufferView.byteLength,
-            &buffer.data.at(0) + bufferView.byteOffset, GL_STATIC_DRAW);
-    }
-
-    for (size_t i = 0; i < mesh.primitives.size(); ++i) {
-        tinygltf::Primitive primitive = mesh.primitives[i];
-        tinygltf::Accessor indexAccessor = model.accessors[primitive.indices];
-
-        for (auto& attrib : primitive.attributes) {
-            tinygltf::Accessor accessor = model.accessors[attrib.second];
-            int byteStride =
-                accessor.ByteStride(model.bufferViews[accessor.bufferView]);
-            glBindBuffer(GL_ARRAY_BUFFER, vbos[accessor.bufferView]);
-
-            int size = 1;
-            if (accessor.type != TINYGLTF_TYPE_SCALAR) {
-                size = accessor.type;
-            }
-
-            int vaa = -1;
-            if (attrib.first.compare("POSITION") == 0) vaa = 0;
-            if (attrib.first.compare("NORMAL") == 0) vaa = 1;
-            if (attrib.first.compare("TEXCOORD_0") == 0) vaa = 2;
-            if (vaa > -1) {
-                glEnableVertexAttribArray(vaa);
-                glVertexAttribPointer(vaa, size, accessor.componentType,
-                    accessor.normalized ? GL_TRUE : GL_FALSE,
-                    byteStride, BUFFER_OFFSET(accessor.byteOffset));
-            }
-            else
-                std::cout << "vaa missing: " << attrib.first << std::endl;
-        }
-
-        if (model.textures.size() > 0) {
-            // fixme: Use material's baseColor
-            tinygltf::Texture& tex = model.textures[0];
-
-            if (tex.source > -1) {
-
-                GLuint texid;
-                glGenTextures(1, &texid);
-
-                tinygltf::Image& image = model.images[tex.source];
-
-                glBindTexture(GL_TEXTURE_2D, texid);
-                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-                GLenum format = GL_RGBA;
-
-                if (image.component == 1) {
-                    format = GL_RED;
-                }
-                else if (image.component == 2) {
-                    format = GL_RG;
-                }
-                else if (image.component == 3) {
-                    format = GL_RGB;
-                }
-                else {
-                    // ???
-                }
-
-                GLenum type = GL_UNSIGNED_BYTE;
-                if (image.bits == 8) {
-                    // ok
-                }
-                else if (image.bits == 16) {
-                    type = GL_UNSIGNED_SHORT;
-                }
-                else {
-                    // ???
-                }
-
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0,
-                    format, type, &image.image.at(0));
-            }
-        }
-    }
-}
-
-tinygltf::TinyGLTF loader;
 class Model :public Drawable
 {
     uint ID, EBO;
@@ -171,7 +57,7 @@ public:
         shader->setMat4("model", this->Transform);
         glBindVertexArray(ID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glDrawElements(GL_TRIANGLES, NumOfIndices, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, meshes[0].IndeciesCount, GL_UNSIGNED_INT, 0);
        /* for(const auto& mesh:meshes)
             glDrawElementsBaseVertex(GL_TRIANGLES,mesh.BaseIndex,GL_UNSIGNED_INT,0,mesh.IndeciesCount);*/
         //glDrawElementsBaseVertex(GL_TRIANGLES, NumOfIndices, GL_UNSIGNED_INT, 0);
@@ -270,108 +156,109 @@ public:
     }
 };
 
-Model LoadModel(string& filePath) 
-{
-    tinygltf::Model model;
-    string errors;
-    string warnings;
-    uint checkSections;
-   Model _model;
-   bool ret = loader.LoadASCIIFromFile(&model,&errors,&warnings,filePath);
-   
-   if (warnings.size() > 0)
-       std::cout << warnings << "\n";
-   
-   if (errors.size() > 0) {
-
-       std::cout << errors << "\n";
-       return _model;
-   }
-   //model.meshes[0].
-   vector<vec3> _positions;
-   vector<vec3> _normals;
-   vector<vec2> _texCoords;
-   vector<uint> _indices;
-   int currentVertexIndex = 0;
-   int currentIndex = 0;
-   for(tinygltf::Mesh& msh : model.meshes ) 
-   {
-       Mesh mesh;
-       mesh.BaseVertex = currentVertexIndex;
-       mesh.BaseIndex = currentIndex;
-       
-       for (int i = 0; i < msh.primitives.size(); i++) 
-       {
-           const auto& positions = msh.primitives[i].attributes["POSITION"];
-           const auto& normals = msh.primitives[i].attributes["NORMAL"];
-           const auto& textureCoords = msh.primitives[i].attributes["TEXCOORD_0"];
-           const auto& indices = msh.primitives[i].indices;
-
-
-           // read positions
-           const auto& accessor = model.accessors[positions];
-           const auto& bufferView = model.bufferViews[accessor.bufferView];
-           const auto& buffer = model.buffers[bufferView.buffer];
-
-           
-           const float* vertexData = reinterpret_cast<const float*>(buffer.data.data() + accessor.byteOffset);
-
-           // Access individual vertex positions
-           for (size_t i = 0; i < accessor.count; ++i) {
-               float x = vertexData[i * 3 + 0];
-               float y = vertexData[i * 3 + 1];
-               float z = vertexData[i * 3 + 2];
-               // ... use x, y, z
-               _positions.push_back({ x,y,z });
-           }
-           currentVertexIndex += accessor.count;
-
-           const auto& accessor_normal = model.accessors[normals];
-           const auto& bufferView_normals = model.bufferViews[accessor_normal.bufferView];
-           const auto& buffer_normals = model.buffers[bufferView_normals.buffer];
-
-           const float* vertexNormals = reinterpret_cast<const float*>(buffer_normals.data.data() + accessor_normal.byteOffset);
-           for (size_t i = 0; i < accessor.count; i++) 
-           {
-               float x = vertexNormals[i * 3 + 0];
-               float y = vertexNormals[i * 3 + 1];
-               float z = vertexNormals[i * 3 + 2];
-               _normals.push_back({ x,y,z });
-           }
-
-           const auto& accessor_texCord = model.accessors[textureCoords];
-           const auto& bufferViewTexCoor = model.bufferViews[accessor_texCord.bufferView];
-           const auto& bufferTexCoord = model.buffers[bufferViewTexCoor.buffer];
-
-           const float* TexCoords = reinterpret_cast<const float*>(bufferTexCoord.data.data() + accessor_texCord.byteOffset);
-       
-           for (size_t i = 0; i < accessor_texCord.count; i++)
-           {
-               float x = TexCoords[i * 2 + 0];
-               float y = TexCoords[i * 2 + 1];
-               _texCoords.push_back({ x,y });
-           }
-
-           const auto& indicesAccessor = model.accessors[indices];
-           const auto& indicesBufferView = model.bufferViews[indicesAccessor.bufferView];
-           const auto& indicesBuffer = model.buffers[indicesBufferView.buffer];
-
-           const uint16_t* indicesData = reinterpret_cast<const uint16_t*>(indicesBuffer.data.data() + indicesAccessor.byteOffset);
-
-           for (size_t i = 0; i < indicesAccessor.count; i++) 
-           {
-               _indices.push_back(indicesData[i]);
-           }
-           currentIndex += indicesAccessor.count;
-           _model.NumOfIndices += indicesAccessor.count;
-       }
-       mesh.VerteciesCount = currentVertexIndex - mesh.BaseVertex;
-       mesh.IndeciesCount = currentIndex - mesh.BaseIndex;
-       _model.meshes.push_back(mesh);
-   }
-   _model.InitModel(_positions, _normals, _texCoords, _indices);
-   return _model;
-}
+//
+//Model LoadModel(string& filePath) 
+//{
+//    tinygltf::Model model;
+//    string errors;
+//    string warnings;
+//    uint checkSections;
+//   Model _model;
+//   bool ret = loader.LoadASCIIFromFile(&model,&errors,&warnings,filePath);
+//   
+//   if (warnings.size() > 0)
+//       std::cout << warnings << "\n";
+//   
+//   if (errors.size() > 0) {
+//
+//       std::cout << errors << "\n";
+//       return _model;
+//   }
+//   //model.meshes[0].
+//   vector<vec3> _positions;
+//   vector<vec3> _normals;
+//   vector<vec2> _texCoords;
+//   vector<uint> _indices;
+//   int currentVertexIndex = 0;
+//   int currentIndex = 0;
+//   for(tinygltf::Mesh& msh : model.meshes ) 
+//   {
+//       Mesh mesh;
+//       mesh.BaseVertex = currentVertexIndex;
+//       mesh.BaseIndex = currentIndex;
+//       
+//       for (int i = 0; i < msh.primitives.size(); i++) 
+//       {
+//           const auto& positions = msh.primitives[i].attributes["POSITION"];
+//           const auto& normals = msh.primitives[i].attributes["NORMAL"];
+//           const auto& textureCoords = msh.primitives[i].attributes["TEXCOORD_0"];
+//           const auto& indices = msh.primitives[i].indices;
+//
+//
+//           // read positions
+//           const auto& accessor = model.accessors[positions];
+//           const auto& bufferView = model.bufferViews[accessor.bufferView];
+//           const auto& buffer = model.buffers[bufferView.buffer];
+//
+//           
+//           const float* vertexData = reinterpret_cast<const float*>(buffer.data.data() + accessor.byteOffset);
+//
+//           // Access individual vertex positions
+//           for (size_t i = 0; i < accessor.count; ++i) {
+//               float x = vertexData[i * 3 + 0];
+//               float y = vertexData[i * 3 + 1];
+//               float z = vertexData[i * 3 + 2];
+//               // ... use x, y, z
+//               _positions.push_back({ x,y,z });
+//           }
+//           currentVertexIndex += accessor.count;
+//
+//           const auto& accessor_normal = model.accessors[normals];
+//           const auto& bufferView_normals = model.bufferViews[accessor_normal.bufferView];
+//           const auto& buffer_normals = model.buffers[bufferView_normals.buffer];
+//
+//           const float* vertexNormals = reinterpret_cast<const float*>(buffer_normals.data.data() + accessor_normal.byteOffset);
+//           for (size_t i = 0; i < accessor.count; i++) 
+//           {
+//               float x = vertexNormals[i * 3 + 0];
+//               float y = vertexNormals[i * 3 + 1];
+//               float z = vertexNormals[i * 3 + 2];
+//               _normals.push_back({ x,y,z });
+//           }
+//
+//           const auto& accessor_texCord = model.accessors[textureCoords];
+//           const auto& bufferViewTexCoor = model.bufferViews[accessor_texCord.bufferView];
+//           const auto& bufferTexCoord = model.buffers[bufferViewTexCoor.buffer];
+//
+//           const float* TexCoords = reinterpret_cast<const float*>(bufferTexCoord.data.data() + accessor_texCord.byteOffset);
+//       
+//           for (size_t i = 0; i < accessor_texCord.count; i++)
+//           {
+//               float x = TexCoords[i * 2 + 0];
+//               float y = TexCoords[i * 2 + 1];
+//               _texCoords.push_back({ x,y });
+//           }
+//
+//           const auto& indicesAccessor = model.accessors[indices];
+//           const auto& indicesBufferView = model.bufferViews[indicesAccessor.bufferView];
+//           const auto& indicesBuffer = model.buffers[indicesBufferView.buffer];
+//
+//           const uint16_t* indicesData = reinterpret_cast<const uint16_t*>(indicesBuffer.data.data() + indicesAccessor.byteOffset);
+//
+//           for (size_t i = 0; i < indicesAccessor.count; i++) 
+//           {
+//               _indices.push_back(indicesData[i]);
+//           }
+//           currentIndex += indicesAccessor.count;
+//           _model.NumOfIndices += indicesAccessor.count;
+//       }
+//       mesh.VerteciesCount = currentVertexIndex - mesh.BaseVertex;
+//       mesh.IndeciesCount = currentIndex - mesh.BaseIndex;
+//       _model.meshes.push_back(mesh);
+//   }
+//   _model.InitModel(_positions, _normals, _texCoords, _indices);
+//   return _model;
+//}
 
 
 #pragma endregion
@@ -521,10 +408,10 @@ int main()
     rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
     rect.Transform = glm::scale(rect.Transform, { 7.0f,0.5f,7.0f });
     string modelpath = string("./Res/Models/Cube.gltf");
-    Model model = LoadModel(modelpath);
+   /* Model model = ProcessMeshes(modelpath);
     model.Transform = mat4(1.0f);
     model.Transform = glm::translate(rect.Transform, { 0.0f,3.5f,3.0f });
-    model.Transform = glm::scale(rect.Transform, { 1.0f,0.5f,1.0f });
+    model.Transform = glm::scale(rect.Transform, { 1.0f,0.5f,1.0f });*/
     
     //rect.Transform = transform;//Transform::createModelMatrix(vec3( 1.0f,1.0f,0.0f ), vec3( 0.0f,0.0f,0.0f ), vec3( 3.0f,0.5f,3.0f ));
     //rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
@@ -534,7 +421,7 @@ int main()
     vector <Drawable*> drawables;
     drawables.push_back(&cube);
     drawables.push_back(&rect);
-    drawables.push_back(&model);
+    //drawables.push_back(&model);
     
     //drawables.push_back(&p2);
 
