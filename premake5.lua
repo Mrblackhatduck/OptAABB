@@ -11,6 +11,7 @@ workspace "AABBALgo"
             "./Dependencies/glm/",
             "./Dependencies/GL4.3/include/", 
             "./Dependencies/stb_image/", 
+            "./Dependencies/tinyOBJLoader/", 
             "./Dependencies/fastgltf/", 
             "./Dependencies/"
         }

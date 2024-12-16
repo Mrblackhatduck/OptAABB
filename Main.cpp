@@ -12,6 +12,8 @@
 #include <Texture.h>
 
 
+#include <tiny_obj_loader.h>
+
 
 //#include <bTree.h>
 
@@ -57,7 +59,7 @@ public:
         shader->setMat4("model", this->Transform);
         glBindVertexArray(ID);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glDrawElements(GL_TRIANGLES, meshes[0].IndeciesCount, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, NumOfIndices, GL_UNSIGNED_INT, 0);
        /* for(const auto& mesh:meshes)
             glDrawElementsBaseVertex(GL_TRIANGLES,mesh.BaseIndex,GL_UNSIGNED_INT,0,mesh.IndeciesCount);*/
         //glDrawElementsBaseVertex(GL_TRIANGLES, NumOfIndices, GL_UNSIGNED_INT, 0);
@@ -122,25 +124,28 @@ public:
         glGenBuffers(1, &EBO);
 
         glBindBuffer(GL_ARRAY_BUFFER, vboPos);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Positions), &Positions[0], GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vboNorm);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Normals), &Normals[0], GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vboTexCoord);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(TextureCoords), &TextureCoords[0], GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), &indices[0], GL_STATIC_DRAW);
-
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*Positions.size(), &Positions[0], GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
+        glBindBuffer(GL_ARRAY_BUFFER, vboNorm);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vec3)*Normals.size(), &Normals[0], GL_STATIC_DRAW);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-        glEnableVertexAttribArray(3);
+        glBindBuffer(GL_ARRAY_BUFFER, vboTexCoord);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vec2)*TextureCoords.size(), &TextureCoords[0], GL_STATIC_DRAW);
+        glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint)*indices.size(), &indices[0], GL_STATIC_DRAW);
+
+        
+
+        
+
+       
 
         glBindVertexArray(0);
     }
@@ -156,109 +161,83 @@ public:
     }
 };
 
-//
-//Model LoadModel(string& filePath) 
-//{
-//    tinygltf::Model model;
-//    string errors;
-//    string warnings;
-//    uint checkSections;
-//   Model _model;
-//   bool ret = loader.LoadASCIIFromFile(&model,&errors,&warnings,filePath);
-//   
-//   if (warnings.size() > 0)
-//       std::cout << warnings << "\n";
-//   
-//   if (errors.size() > 0) {
-//
-//       std::cout << errors << "\n";
-//       return _model;
-//   }
-//   //model.meshes[0].
-//   vector<vec3> _positions;
-//   vector<vec3> _normals;
-//   vector<vec2> _texCoords;
-//   vector<uint> _indices;
-//   int currentVertexIndex = 0;
-//   int currentIndex = 0;
-//   for(tinygltf::Mesh& msh : model.meshes ) 
-//   {
-//       Mesh mesh;
-//       mesh.BaseVertex = currentVertexIndex;
-//       mesh.BaseIndex = currentIndex;
-//       
-//       for (int i = 0; i < msh.primitives.size(); i++) 
-//       {
-//           const auto& positions = msh.primitives[i].attributes["POSITION"];
-//           const auto& normals = msh.primitives[i].attributes["NORMAL"];
-//           const auto& textureCoords = msh.primitives[i].attributes["TEXCOORD_0"];
-//           const auto& indices = msh.primitives[i].indices;
-//
-//
-//           // read positions
-//           const auto& accessor = model.accessors[positions];
-//           const auto& bufferView = model.bufferViews[accessor.bufferView];
-//           const auto& buffer = model.buffers[bufferView.buffer];
-//
-//           
-//           const float* vertexData = reinterpret_cast<const float*>(buffer.data.data() + accessor.byteOffset);
-//
-//           // Access individual vertex positions
-//           for (size_t i = 0; i < accessor.count; ++i) {
-//               float x = vertexData[i * 3 + 0];
-//               float y = vertexData[i * 3 + 1];
-//               float z = vertexData[i * 3 + 2];
-//               // ... use x, y, z
-//               _positions.push_back({ x,y,z });
-//           }
-//           currentVertexIndex += accessor.count;
-//
-//           const auto& accessor_normal = model.accessors[normals];
-//           const auto& bufferView_normals = model.bufferViews[accessor_normal.bufferView];
-//           const auto& buffer_normals = model.buffers[bufferView_normals.buffer];
-//
-//           const float* vertexNormals = reinterpret_cast<const float*>(buffer_normals.data.data() + accessor_normal.byteOffset);
-//           for (size_t i = 0; i < accessor.count; i++) 
-//           {
-//               float x = vertexNormals[i * 3 + 0];
-//               float y = vertexNormals[i * 3 + 1];
-//               float z = vertexNormals[i * 3 + 2];
-//               _normals.push_back({ x,y,z });
-//           }
-//
-//           const auto& accessor_texCord = model.accessors[textureCoords];
-//           const auto& bufferViewTexCoor = model.bufferViews[accessor_texCord.bufferView];
-//           const auto& bufferTexCoord = model.buffers[bufferViewTexCoor.buffer];
-//
-//           const float* TexCoords = reinterpret_cast<const float*>(bufferTexCoord.data.data() + accessor_texCord.byteOffset);
-//       
-//           for (size_t i = 0; i < accessor_texCord.count; i++)
-//           {
-//               float x = TexCoords[i * 2 + 0];
-//               float y = TexCoords[i * 2 + 1];
-//               _texCoords.push_back({ x,y });
-//           }
-//
-//           const auto& indicesAccessor = model.accessors[indices];
-//           const auto& indicesBufferView = model.bufferViews[indicesAccessor.bufferView];
-//           const auto& indicesBuffer = model.buffers[indicesBufferView.buffer];
-//
-//           const uint16_t* indicesData = reinterpret_cast<const uint16_t*>(indicesBuffer.data.data() + indicesAccessor.byteOffset);
-//
-//           for (size_t i = 0; i < indicesAccessor.count; i++) 
-//           {
-//               _indices.push_back(indicesData[i]);
-//           }
-//           currentIndex += indicesAccessor.count;
-//           _model.NumOfIndices += indicesAccessor.count;
-//       }
-//       mesh.VerteciesCount = currentVertexIndex - mesh.BaseVertex;
-//       mesh.IndeciesCount = currentIndex - mesh.BaseIndex;
-//       _model.meshes.push_back(mesh);
-//   }
-//   _model.InitModel(_positions, _normals, _texCoords, _indices);
-//   return _model;
-//}
+
+Model loadmodel(string& filepath,bool triangulate = true) 
+{
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    string errors;
+    string warnings;
+    uint checksections;
+
+    int seperator = filepath.find_last_of("/") + 1;
+    string path = filepath.substr(0,seperator);
+    string name = filepath.substr(seperator, filepath.size() - seperator );
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warnings, &errors, filepath.c_str(),
+        NULL, triangulate);
+   Model _model;
+   
+   
+   if (warnings.size() > 0)
+       std::cout << warnings << "\n";
+   
+   if (errors.size() > 0) {
+
+       std::cout << errors << "\n";
+       return _model;
+   }
+   //model.meshes[0].
+   vector<vec3> _positions;
+   vector<vec3> _normals;
+   vector<vec2> _texcoords;
+   vector<uint> _indices;
+   int currentvertexindex = 0;
+   int currentindex = 0;
+    
+   std::cout << "# of vertices  : " << (attrib.vertices.size() / 3) << std::endl;
+   std::cout << "# of normals   : " << (attrib.normals.size() / 3) << std::endl;
+   std::cout << "# of texcoords : " << (attrib.texcoords.size() / 2)
+       << std::endl;
+   uint sizePositions = attrib.vertices.size()/3;
+   uint sizeNormals = attrib.normals.size()/3;
+   uint sizeTexCoords = attrib.texcoords.size()/2;
+   float x, y, z;
+   for (size_t i = 0; i < sizePositions; i++)
+   {
+       x = attrib.vertices[i * 3 + 0];
+       y = attrib.vertices[i * 3 + 1];
+       z = attrib.vertices[i * 3 + 2];
+       _positions.push_back({ x,y,z });
+   }
+
+   for (size_t i = 0; i < sizeNormals; i++)
+   {
+       x = attrib.normals[i * 3 + 0];
+       y = attrib.normals[i * 3 + 1];
+       z = attrib.normals[i * 3 + 2];
+       _normals.push_back({ x,y,z });
+   }
+
+   for (size_t i = 0; i < sizeTexCoords; i++)
+   {
+       x = attrib.texcoords[i * 2 + 0];
+       y = attrib.texcoords[i * 2 + 1];
+       _texcoords.push_back({ x,y });
+   }
+
+   for (size_t i = 0; i < shapes.size(); i++)
+   {
+       for (size_t j = 0; j < shapes[i].mesh.indices.size(); j++)
+       {
+           _indices.push_back(shapes[i].mesh.indices[j].vertex_index);
+       } 
+
+   }
+   _model.InitModel(_positions, _normals, _texcoords, _indices);
+   _model.NumOfIndices = _indices.size();
+   return _model;
+}
 
 
 #pragma endregion
@@ -407,12 +386,12 @@ int main()
     rect.Transform = mat4(1.0f);
     rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
     rect.Transform = glm::scale(rect.Transform, { 7.0f,0.5f,7.0f });
-    string modelpath = string("./Res/Models/Cube.gltf");
-   /* Model model = ProcessMeshes(modelpath);
+    string modelpath = string("./Res/Models/model.obj");
+    Model model = loadmodel(modelpath);
     model.Transform = mat4(1.0f);
-    model.Transform = glm::translate(rect.Transform, { 0.0f,3.5f,3.0f });
-    model.Transform = glm::scale(rect.Transform, { 1.0f,0.5f,1.0f });*/
-    
+    model.Transform = glm::translate(rect.Transform, { 0.0f,0.f,0.0f });
+    model.Transform = glm::scale(rect.Transform, { 1.0f,1.0f,1.0f });
+    model.Transform = Transform::createModelMatrix({0.0f,0.0f,-3.0f}, vec3(0.0f), 2.5f* vec3(1.0f));
     //rect.Transform = transform;//Transform::createModelMatrix(vec3( 1.0f,1.0f,0.0f ), vec3( 0.0f,0.0f,0.0f ), vec3( 3.0f,0.5f,3.0f ));
     //rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
     //rect.Transform = glm::scale(rect.Transform, { 7.0f,0.5f,7.0f });
@@ -421,7 +400,7 @@ int main()
     vector <Drawable*> drawables;
     drawables.push_back(&cube);
     drawables.push_back(&rect);
-    //drawables.push_back(&model);
+    drawables.push_back(&model);
     
     //drawables.push_back(&p2);
 
@@ -434,7 +413,7 @@ int main()
     vec3 up = { 0,1,0 };
     lightMat = glm::lookAt(eye, target, up);
         //glm::lookAt(eye, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-    mat4 lightProj = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.5f, 30.5f);
+    mat4 lightProj = glm::ortho(-7.5f, 7.5f, -7.5f, 7.5f, 1.5f, 40.5f);
     
     mat4 finalLightMat = lightProj * lightMat;
    
