@@ -1,7 +1,7 @@
 #include <Utils.h>
 #include <AABB.h>
 
-
+/*
 AABB AABB::zero = AABB( vec3(FLOAT_MAX,FLOAT_MAX,FLOAT_MAX), vec3(FLOAT_MIN,FLOAT_MIN,FLOAT_MIN)); 
 AABB::AABB(vec3&& min, vec3&& max)
 {
@@ -74,6 +74,7 @@ void AABB::Include(vec3& point)
     Max.y = glm::max(Max.y, point.y);
     Max.z = glm::max(Max.z, point.z);
 }
+*/
 // void AABB::operator-=(AABB& other)
 // {
 //     this->Min = glm::min(this->Min, other.Min);

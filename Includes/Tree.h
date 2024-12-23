@@ -1,107 +1,195 @@
 #ifndef TREE_H
 #define TREE_H
 
-#include <AABB.h>
-#include <stack>
+
+
 //#include <Types.h>
 //#include <vector>
 
 #define FRWRD(Type, DATA) std::forward<Type>(DATA)
 
+#include <iostream>
+//#include <vector>
+//#include <memory>
+#include <limits>
+#include <algorithm>
+#include <queue>
+#include <Types.h>
 
+struct AABB {
+    vec3 Min;
+    vec3 Max;
 
-template<typename t>
-using stack = std::stack<t>; 
+    AABB() : Min(vec3(std::numeric_limits<float>::max())), Max(vec3(std::numeric_limits<float>::lowest())) {}
+    AABB(const vec3& min, const vec3& max) : Min(min), Max(max) {}
 
+    bool intersects(const AABB& other) const {
+        return (Min.x <= other.Max.x && Max.x >= other.Min.x) &&
+            (Min.y <= other.Max.y && Max.y >= other.Min.y) &&
+            (Min.z <= other.Max.z && Max.z >= other.Min.z);
+    }
 
+    AABB merge(const AABB& other) const {
+        return AABB(
+            vec3(std::min(Min.x, other.Min.x), std::min(Min.y, other.Min.y), std::min(Min.z, other.Min.z)),
+            vec3(std::max(Max.x, other.Max.x), std::max(Max.y, other.Max.y), std::max(Max.z, other.Max.z))
+        );
+    }
 
-struct Node
+    vec3 center() const {
+        return (Min + Max) * 0.5f;
+    }
+    float GetWidth() const
+    {
+        return Max.x - Min.x;
+    }
+
+    float GetHeight() const
+    {
+        return Max.y - Min.y;
+    }
+
+    float GetDepth() const
+    {
+        return Max.z - Min.z;
+    }
+
+    float SurfaceArea() const
+    {
+        return 2.0f * (GetWidth() * GetHeight() + GetWidth() * GetDepth() + GetHeight() * GetDepth());
+    }
+    AABB operator+(AABB& other)
+    {
+        return merge(other);
+    }
+};
+#define NULL_NODE -1
+
+struct Node {
+    AABB bounds;
+    int left, right, parent;
+    bool isLeaf;
+    Node() :left(NULL_NODE), right(NULL_NODE), parent(NULL_NODE), isLeaf(false)
+    {
+    }
+};
+
+struct CostMapping {
+    float cost; int index;
+    CostMapping(float Cost, int Index):cost(Cost),index(Index) {}
+    bool operator >(CostMapping& rhs) const
+    {
+        if (rhs.cost < cost)
+            return true;
+        else
+            return false;
+    }
+    bool operator <(CostMapping& rhs) const
+    {
+        if (rhs.cost > cost)
+            return true;
+        else
+            return false;
+    }
+};
+struct Tree
 {
-    Node(AABB* AABBData, Node* parent, Node* right, Node* left) 
-    :
-        Data(AABBData),
-        Parent(parent),
-        Right(right),
-        Left(left)
+    //node traversal costs
+    //std::priority_queue<CostMapping,vector<CostMapping>,std::greater<CostMapping>> costs;
+    
+    vector<Node> nodes;
+    int root = NULL_NODE;
+    void InsertNode(AABB&& bounds) 
+    {
+        Node node;
+        node.bounds = bounds;
+        InsertNode(node);
+    }
+    void InsertNode(Node node)
+    {
+        if (root == NULL_NODE)
         {
-            
+            root = 0;
+            nodes.push_back(node);
+            return;
         }
-    Node(AABB* AABBdata)
-    :
-        Data(AABBdata),
-        Parent(nullptr),
-        Right(nullptr),
-        Left(nullptr)
-    {}
-    Node()
-    :
-        Data(nullptr),
-        Parent(nullptr),
-        Right(nullptr),
-        Left(nullptr)
-    {}
-    
-    Node *Parent,*Right,*Left;
-    bool isLeaf = false;
-    AABB* Data;
-    
-    operator const AABB&()
-    const {
-        return *Data;
+        int currentNode = 0;
+        Node& current = nodes[0];
+        CostMapping bestSibling = CostMapping(std::numeric_limits<float>::max(), 0);
+        // as long we didnt hit a leaf node 
+        while (currentNode != NULL_NODE)
+        {
+            current = nodes[currentNode];
+            if (current.left == NULL_NODE && current.right == NULL_NODE)
+                break;
+            float directCostL = (node.bounds + nodes[current.left].bounds).SurfaceArea();
+            float directCostR = (node.bounds + nodes[current.right].bounds).SurfaceArea();
+            float inheritCostR = CostRefitted(current.right,node.bounds);
+            float inheritCostL = CostRefitted(current.left,node.bounds);
+                if (directCostL + inheritCostL < directCostR + inheritCostR)
+                {
+                    currentNode = current.left;
+                    bestSibling.cost = directCostL + inheritCostL;
+                    bestSibling.index = current.left;
+                }
+                else 
+                {
+                    currentNode = current.right;
+                    bestSibling.cost = directCostR + inheritCostR;
+                    bestSibling.index = current.right;
+                }
+        }
+
+        std::cout << "sus" << "\n";
+        /// TO BE DONE : ADD the node to the best sibling
     }
-    operator AABB&()
+    float CostRefitted(int index,AABB& bounds) 
     {
-        return *Data;
-    } 
-    bool operator==(const Node& other) const
+        AABB currentBound = bounds + nodes[index].bounds;
+        while (index > 0)
+        {
+            currentBound = currentBound + nodes[index].bounds;
+            index = nodes[index].parent;
+        }
+        currentBound = currentBound + nodes[0].bounds;
+        return currentBound.SurfaceArea();
+    }
+    float Cost(Tree tree)
     {
-        if(other.isLeaf == this-> isLeaf && other.Data == this->Data)
-            return true;
+        float cost = 0;
+        for (size_t i = 0; i < tree.nodes.size(); i++)
+        {
+            if (!tree.nodes[i].isLeaf)
+                cost += tree.nodes[i].bounds.SurfaceArea();
+        }
+        return cost;
+    }
+    float Cost(int index)
+    {
+        if (index == NULL_NODE || nodes[index].isLeaf)
+        {
+            return 0;
+        }
         else
-            return false;
+        {
+            return
+                nodes[index].bounds.SurfaceArea() +
+                Cost(nodes[index].left) +
+                Cost(nodes[index].right);
+        }
 
     }
-    bool operator!=(const Node& other) const 
+    float CostInherited(int index)
     {
-        
-        if(other.isLeaf == this-> isLeaf && other.Data == this->Data)
-            return false;
+        if (index <= -1)
+            return 0;
         else
-            return true;
-    }
-    void operator=(const Node& other)
-    {
-        this->Data = other.Data;
-        this->Parent = other.Parent;
-        this->Right = other.Right;
-        this->Left = other.Left;
-        this->isLeaf = other.isLeaf;
-    }
-    operator const vec3() const
-    {
-        return (Data->Max + Data->Min)/2.0f ;
+        {
+            return nodes[index].bounds.SurfaceArea() + CostInherited(nodes[index].parent);
+        }
+
     }
 };
 
-class Tree{
-    Node root;
-    public:
-        vector<Node> treeNodes;
-        static Node nullNode;
-        Tree(Node&& Root) :
-        treeNodes(vector<Node>()),
-        root(std::forward<Node>(Root))
-        {}
-        Tree():root(nullNode),
-        treeNodes(vector<Node>())
-        {}
-    const Node GetRoot() const{ return root;}
-    void InsertNode(Node&& newNode);
-    void InsertNodeUtil(Node* insertingNode,Node* IntoNode,Node&& insertedNode);
-    bool RayCast(const vec3 start, const vec3 direction,float maxDistance = 500.0f);
-    Node* PickBestSibling(Node* inserted );
-    void BuildTree(vector<AABB>& worldObjects);
-    //bool IntersectsWith();
-};
 
 #endif

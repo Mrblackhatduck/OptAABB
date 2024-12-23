@@ -77,16 +77,22 @@ vec3 ScreenToWorldRay(vec3 screenSpacePos)
 vec4 ScreenToWorld(vec3 point)
 {
     float ndc_x = (point.x * 2) -1;
-    float ndc_y = 1 - (point.y * 2) ;
+    float ndc_y = (point.y * 2) -1 ;
     float ndc_z = point.z;
 
-    mat4 toWorld = inverse(projectionMatrix* viewMatrix);
-    vec4 worldPoint = toWorld * vec4(ndc_x,ndc_y,ndc_z,1);
+    vec4 world = inverse(projectionMatrix) * vec4(ndc_x,ndc_y,ndc_z,1);
+    world = world/world.w;
+    world = inverse(viewMatrix) * world;
     
-    return worldPoint;
+    return world;
 }
-float March(vec2 point,float marchSteps,float maxMarchDistance)
+float March(vec3 point,float maxMarchDistance)
 {
+    if(maxMarchDistance == -1)
+        {
+            maxMarchDistance = ScreenToWorld(vec3(point.x,point.y,point.z)) 
+        }
+
     float marchUnit = maxMarchDistance/marchSteps;
     vec3 start = (ScreenToWorld(vec3(point,-1))).xyz;
     vec3 end = camPos;//(ScreenToWorld(vec3(point,1))).xyz;

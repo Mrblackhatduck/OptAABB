@@ -14,7 +14,9 @@ out vec2 texCoord;
 void main()
 {
 	WorldPos = model * vec4(vPos,1);
-	norm = transpose(inverse(mat3(model))) * vNormal;
+	mat3 normalMatrix = transpose(inverse(mat3(model)));
+    norm = normalMatrix * vNormal;
+	//norm = transpose(inverse(mat3(model))) * vNormal;
 	texCoord = TexCoords;
 	gl_Position = proj * view * WorldPos ;
 }

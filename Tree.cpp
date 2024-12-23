@@ -2,7 +2,7 @@
 #include <stack>
 
 
-
+/*
 Node Tree::nullNode = Node(nullptr,nullptr,nullptr,nullptr);
 
 
@@ -112,11 +112,12 @@ void Tree::InsertNode(Node&& newNode)
        }
 
     }
-    */
+    
     
     
 }
-
+*/
+/*
 void Tree::InsertNodeUtil(Node* insertingNode,Node* IntoNode,Node&& insertedNode)
 {
     //if(insertInto == nullptr)
@@ -128,3 +129,4 @@ void Tree::BuildTree(vector<AABB>& volumes)
 {
     
 }
+*/

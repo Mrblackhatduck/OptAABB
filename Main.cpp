@@ -11,7 +11,7 @@
 
 #include <Texture.h>
 
-
+#include<Tree.h>
 #include <tiny_obj_loader.h>
 
 
@@ -333,12 +333,31 @@ inline float EndTimer()
     //printf("Time spent on the GPU: %f ms\n", (timeStart - timeEnd) / 1000000.0);
     return (timeStart - timeEnd) / 1000000.0;
 }
+void TestTREE() {
+
+    Tree tree;
+    tree.InsertNode(AABB(vec3(0, 0, 0), vec3(1, 1, 1)));
+    tree.InsertNode(AABB(vec3(2, 2, 2), vec3(3, 3, 3)));
+    tree.InsertNode(AABB(vec3(-1, -1, -1), vec3(0, 0, 0)));
+
+    AABB queryArea(vec3(-0.5f, -0.5f, -0.5f), vec3(2.5f, 2.5f, 2.5f));
+    std::vector<int> results;
+    //tree.query(queryArea, results);
+
+    std::cout << "Objects in query area:\n";
+    for (int index : results) {
+        std::cout << "Object " << index << "\n";
+    }
+
+
+}
+
 int main()
 {
     //tinygltf::Model model;
     void(*func)() = []() 
         {
-
+            TestTREE();
         };
             //Test();
     std::thread thread = std::thread(func);
@@ -386,15 +405,13 @@ int main()
     rect.Transform = mat4(1.0f);
     rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
     rect.Transform = glm::scale(rect.Transform, { 7.0f,0.5f,7.0f });
-    string modelpath = string("./Res/Models/model.obj");
+    string modelpath = string("./Res/Models/Shop.obj");
     Model model = loadmodel(modelpath);
     model.Transform = mat4(1.0f);
     model.Transform = glm::translate(rect.Transform, { 0.0f,0.f,0.0f });
     model.Transform = glm::scale(rect.Transform, { 1.0f,1.0f,1.0f });
     model.Transform = Transform::createModelMatrix({0.0f,0.0f,-3.0f}, vec3(0.0f), 2.5f* vec3(1.0f));
-    //rect.Transform = transform;//Transform::createModelMatrix(vec3( 1.0f,1.0f,0.0f ), vec3( 0.0f,0.0f,0.0f ), vec3( 3.0f,0.5f,3.0f ));
-    //rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
-    //rect.Transform = glm::scale(rect.Transform, { 7.0f,0.5f,7.0f });
+    
     
     
     vector <Drawable*> drawables;
@@ -408,8 +425,8 @@ int main()
     DrawCall Basic(&basicShader);
     
     mat4 lightMat = mat4(1.0f);
-    vec3 eye = { -2.0f, 30.0f, -5.0f };
-    vec3 target = { 0,3,0 };
+    vec3 eye = { -2.0f, 9.0f, 0.0f };
+    vec3 target = { 0,-10,-10 };
     vec3 up = { 0,1,0 };
     lightMat = glm::lookAt(eye, target, up);
         //glm::lookAt(eye, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));

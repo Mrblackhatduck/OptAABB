@@ -13,6 +13,6 @@ uniform vec4 BaseColor;
 void main()
 {
 position = WorldPos;
-Normals = (norm);
+Normals = normalize(norm);
 Albedo  = BaseColor;
 }

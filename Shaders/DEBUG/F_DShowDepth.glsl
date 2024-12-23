@@ -36,7 +36,7 @@ float shadow = 0.0;
 if(filtered){
     vec3 normal = normalize(Normal);
     vec3 lightDir = normalize(LightPos - positionWorld.xyz);
-    float bias = max(0.05 * (1.0 - dot(Normal, lightDir)), 0.0005);
+    float bias = max(0.05 * (1.0 - dot(Normal, lightDir)), 0.005);
       
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     for(int x = -1; x <= 1; ++x)
@@ -47,7 +47,7 @@ if(filtered){
             shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
         }    
     }
-    //shadow /= 9.0;
+    shadow /= 9.0;
 }else
 //    {
 //        shadow
@@ -89,10 +89,10 @@ vec4 ScreenToWorld(vec3 point)
 }
 float March(vec2 point,float marchSteps,float maxMarchDistance)
 {
-    float marchUnit = maxMarchDistance/marchSteps;
     vec3 start = (ScreenToWorld(vec3(point,0))).xyz;
     vec3 end = (ScreenToWorld(vec3(point,1))).xyz;
-
+    //float marchUnit = maxMarchDistance/marchSteps;
+    float marchUnit = length(vec3(end-start))/marchSteps;
     vec3 direction = normalize(end - start);
     
 
@@ -101,7 +101,7 @@ float March(vec2 point,float marchSteps,float maxMarchDistance)
     for(int i=0; i<marchSteps; i++)
     {
         pointWorld = start + (direction * marchUnit * i);
-        if(CalculateShadow(vec4(pointWorld,1),texture(normal,TexCoords).rgb,true)>.1)
+        if(CalculateShadow(vec4(pointWorld,1),texture(normal,TexCoords).rgb,true)>.01f)
             value += computeScattering(pointWorld);
 
     }
@@ -110,7 +110,13 @@ float March(vec2 point,float marchSteps,float maxMarchDistance)
 }
 
 
+vec3 CalculateLight(vec3 fragPos, vec3 normal, vec3 lightPos)
+{
+    vec3 lightDir = normalize(fragPos - lightPos);
+    vec3 diffuse = max(dot(normal, lightDir), 0.0) * vec3(0.9f,0.9f,0.9f);
 
+    return diffuse;
+}
 void main()
 {
 	// Shadow map debug
@@ -123,14 +129,17 @@ void main()
     vec3 _normal = texture(normal,TexCoords).rgb;
 	vec4 col = texture(albedo,TexCoords);
 	col = (1-CalculateShadow(position,_normal,true)) * col;
-    float marchVal = March(TexCoords,40,30);
+    float marchVal = March(TexCoords,60,10);
+        
     
-    
-    if(marchVal < .5f  )
+//    col.x = _normal.x;
+//    col.y = _normal.y;
+//    col.z = _normal.z;
+    if(marchVal < .7f)
     {
         
-        col += vec4(.5f - marchVal,.4f -marchVal,.4f - marchVal,marchVal);
+        col += vec4(.4f - 1.5f*marchVal,.4f -1.5f*marchVal,.4f - 1.5f* marchVal,1.5f*marchVal);
     }
     
-	FragColor = col;
+	FragColor = col; //* vec4(CalculateLight(position.rgb,_normal,LightPos.rgb),1);
 }

@@ -83,7 +83,8 @@ public:
 
 
         //GLuint modelMatLocation = glGetUniformLocation(depthShader.ID, "model");
-        //glCullFace(GL_FRONT);
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
         
         depthShader->use();
         depthShader->setMat4("lightSpaceMatrix", (*LightMatrix));
@@ -99,6 +100,7 @@ public:
         glBindFramebuffer(GL_FRAMEBUFFER,0);
         glViewport(0, 0, screenWidth, screenHeight);
         glCullFace(GL_BACK);
+        
         //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         //

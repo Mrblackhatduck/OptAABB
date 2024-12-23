@@ -3,6 +3,7 @@
 
 #include <Types.h>
 
+/*
 class AABB
 {
 
@@ -24,7 +25,7 @@ class AABB
     
     //void operator -=(AABB& other);
 };
-
+*/
 //static vector<AABB> objects;
 //static void PopulateTree(vector<AABB>& sceneObjects) 
 //{
