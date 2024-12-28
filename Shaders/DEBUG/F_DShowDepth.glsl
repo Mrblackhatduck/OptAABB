@@ -4,11 +4,13 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 
+uniform sampler2D VolumetericInput;
 uniform sampler2D DepthImage;
 uniform sampler2D albedo;
 uniform sampler2D position;
 uniform sampler2D normal;
 uniform sampler2D shadowMap;
+
 
 uniform mat4 LightMatrix;
 uniform vec3 LightForward;
@@ -36,7 +38,8 @@ float shadow = 0.0;
 if(filtered){
     vec3 normal = normalize(Normal);
     vec3 lightDir = normalize(LightPos - positionWorld.xyz);
-    float bias = max(0.05 * (1.0 - dot(Normal, lightDir)), 0.005);
+    //float bias = max(0.05 * (1.0 - dot(Normal, lightDir)), 0.005);
+    float bias = mix(0.005f ,0.0f,dot(Normal, -lightDir));
       
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     for(int x = -1; x <= 1; ++x)
@@ -49,10 +52,7 @@ if(filtered){
     }
     shadow /= 9.0;
 }else
-//    {
-//        shadow
-//    }
-    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+
     if(positionLight3.z > 1.0)
         shadow = 0.0;
         
@@ -68,7 +68,7 @@ float computeScattering(vec3 worldPosition)
 {
     //vec3 viewPos = viewMatrix[3].xyz;
     //vec3 lightPos = LightMatrix[3].xyz;
-    float g = .5f;
+    float g = .1f;
     float costh = dot(normalize(worldPosition -LightPos), normalize(worldPosition - camPos));
     //return (1.0 - k * k) / (4.0 * M_PI * pow(1.0 + k * costh, 2.0));
     
@@ -128,18 +128,20 @@ void main()
     vec4 position = texture(position,TexCoords);
     vec3 _normal = texture(normal,TexCoords).rgb;
 	vec4 col = texture(albedo,TexCoords);
-	col = (1-CalculateShadow(position,_normal,true)) * col;
-    float marchVal = March(TexCoords,60,10);
-        
+	float shadowVal = CalculateShadow(position,_normal,true);
+    col = col *(1-shadowVal);
+    //float marchVal = March(TexCoords,16,10);
+    vec4 newMarchCol =   texture(VolumetericInput,TexCoords);
     
-//    col.x = _normal.x;
-//    col.y = _normal.y;
-//    col.z = _normal.z;
-    if(marchVal < .7f)
-    {
-        
-        col += vec4(.4f - 1.5f*marchVal,.4f -1.5f*marchVal,.4f - 1.5f* marchVal,1.5f*marchVal);
-    }
+
+//    if(marchVal < .5f)
+//    {
+//        
+//        //col += vec4(1.5f*marchVal,1.5f*marchVal,.4f+ 1.5f* marchVal,marchVal);
+//        col += vec4(.5f+  marchVal,.5f+ marchVal,.5f + marchVal,    marchVal);
+//    }
     
-	FragColor = col; //* vec4(CalculateLight(position.rgb,_normal,LightPos.rgb),1);
+
+	FragColor = col + newMarchCol; //* vec4(CalculateLight(position.rgb,_normal,LightPos.rgb),1);
+	//FragColor = texture(VolumetericInput,TexCoords); // delete this bro
 }

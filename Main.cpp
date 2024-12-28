@@ -404,7 +404,7 @@ int main()
     Cube rect;
     rect.Transform = mat4(1.0f);
     rect.Transform = glm::translate(rect.Transform, { 0.0f,-0.5f,-3.0f });
-    rect.Transform = glm::scale(rect.Transform, { 7.0f,0.5f,7.0f });
+    rect.Transform = glm::scale(rect.Transform, { 40.0f,0.5f,40.0f });
     string modelpath = string("./Res/Models/Shop.obj");
     Model model = loadmodel(modelpath);
     model.Transform = mat4(1.0f);
@@ -430,7 +430,7 @@ int main()
     vec3 up = { 0,1,0 };
     lightMat = glm::lookAt(eye, target, up);
         //glm::lookAt(eye, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-    mat4 lightProj = glm::ortho(-7.5f, 7.5f, -7.5f, 7.5f, 1.5f, 40.5f);
+    mat4 lightProj = glm::ortho(-7.5f, 7.5f, -7.5f, 7.5f, 1.5f, 100.5f);
     
     mat4 finalLightMat = lightProj * lightMat;
    
@@ -439,7 +439,11 @@ int main()
     Shader DebugDepthShader("./Shaders/DEBUG/V_DShowDepth.glsl", "./Shaders/DEBUG/F_DShowDepth.glsl");
     std::shared_ptr<Shader> DeferedShader = std::make_shared<Shader>("./Shaders/Defered/V_Def.glsl", "./Shaders/Defered/F_Def.glsl");
     Shader ComputeTester("./Shaders/COMP_Test.glsl");
-    std::shared_ptr<Shader> ComputeDefered = std::make_shared<Shader>("./Shaders/COMP_Defered.glsl");
+    
+    std::shared_ptr<Shader> ComputeVolumetric = std::make_shared<Shader>("./shaders/COMP_Volumetric.glsl");
+    Texture VolumetricTexture = Texture(SCR_WIDTH, SCR_HEIGHT, TextureType::BASIC);
+    
+    //std::shared_ptr<Shader> ComputeDefered = std::make_shared<Shader>("./Shaders/COMP_Defered.glsl");
     DrawCallDepth DepthCall(
         1024,1024,
         &finalLightMat,
@@ -504,11 +508,41 @@ int main()
         DepthCall.Draw(drawables);
         ////////////////  compute shader
        //glBindTexture(GL_TEXTURE_2D, volumetrics);
+       
+        ComputeVolumetric->use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, VolumetricTexture);
+        ComputeVolumetric->setInt("VolumetricResult", 0);
+       
+        ComputeVolumetric->setVec3("camPosition", cam.Position);
+        ComputeVolumetric->setVec3("lightPosition", eye);
+        ComputeVolumetric->setMat4("projectionMat", Projection);
+        ComputeVolumetric->setMat4("viewMatrix", cam.GetViewMatrix());
+        ComputeVolumetric->setMat4("lightMatrix", finalLightMat);
+        
+       
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, deferedRenderer.Position);
+        ComputeVolumetric->setInt("inPosition", 1);
+
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, deferedRenderer.Normal);
+        ComputeVolumetric->setInt("inNormal", 2);
+
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, DepthCall.depthTexture);
+        ComputeVolumetric->setInt("inDepth",3);
+       
+        glDispatchCompute(SCR_WIDTH, SCR_HEIGHT, 1);
+        
+        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+       
        debugDepthCall.shader->use();
        glActiveTexture(GL_TEXTURE0);
-       glBindTexture(GL_TEXTURE_2D, volumetrics);
-       debugDepthCall.shader->setInt("result", 0);
+       glBindTexture(GL_TEXTURE_2D, VolumetricTexture);
+       debugDepthCall.shader->setInt("VolumetericInput", 0);
        
+
        glActiveTexture(GL_TEXTURE1);
        glBindTexture(GL_TEXTURE_2D, deferedRenderer.Albedo);
        debugDepthCall.shader->setInt("albedo", 1);
@@ -524,8 +558,6 @@ int main()
        glActiveTexture(GL_TEXTURE4);
        glBindTexture(GL_TEXTURE_2D, DepthCall.depthTexture);
        debugDepthCall.shader->setInt("shadowMap", 4);
-
-      
 
 
        debugDepthCall.shader->setMat4("LightMatrix", finalLightMat);

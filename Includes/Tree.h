@@ -69,6 +69,11 @@ struct Node {
     AABB bounds;
     int left, right, parent;
     bool isLeaf;
+    bool IsLeaf() 
+    {
+        isLeaf = (left == NULL_NODE);
+        return isLeaf;
+    }
     Node() :left(NULL_NODE), right(NULL_NODE), parent(NULL_NODE), isLeaf(false)
     {
     }
@@ -99,6 +104,80 @@ struct Tree
     
     vector<Node> nodes;
     int root = NULL_NODE;
+    void PrintTree() 
+    {
+        std::queue<int> que;
+        que.push(0);
+        while (!que.empty()) 
+        {
+            Node& node = nodes[que.front()];
+            que.pop();
+            if (node.left != NULL_NODE)
+                que.push(node.left);
+            if (node.right != NULL_NODE)
+                que.push(node.right);
+
+            std::cout << "parent :" << node.parent << " | (" << node.left << " , " << node.right << "\n";
+        }
+    }
+    void RefitTree(int index) 
+    {
+        int current = index;
+        while (index != NULL_NODE)
+        {
+            Node& node = nodes[index];
+            
+            if (node.right == NULL_NODE || node.left == NULL)
+            {
+                index = node.parent;
+                continue;
+            }
+            else
+            {
+                nodes[index].bounds = nodes[node.right].bounds + nodes[node.left].bounds;
+                index = node.parent;
+            }
+        }
+    }
+    void PairToSibling(int Sibling,Node&& node) {
+        Node subParent = Node();
+        Node& sibling = nodes[Sibling];
+        if (nodes[Sibling].parent == NULL_NODE)
+        {
+            nodes.push_back(subParent);
+            int _subParent = nodes.size() - 1;
+            nodes.push_back(node);
+            int _newNode = nodes.size() - 1;
+
+            nodes[_subParent].left = root;
+            nodes[_subParent].right = _newNode;
+            nodes[root].parent = _subParent;
+            nodes[_newNode].parent = _subParent;
+
+            root = _subParent;
+            
+            RefitTree(Sibling);
+            return;
+        }
+        Node& Parent = nodes[sibling.parent];
+        //newNode.bounds = nodes[Sibling].bounds + node.bounds;
+        //newNode.parent = nodes[Sibling].parent;
+        //
+        //nodes.push_back(newNode);
+        //int index = nodes.size() - 1;
+        //nodes[Sibling].parent = index;
+        //node.parent = index;
+        //if (nodes[newNode.parent].left == Sibling) 
+        //{
+        //    nodes[newNode.parent].left = index;
+        //}
+        //else {
+        //    nodes[newNode.parent].right = index;
+        //}
+        //
+    }
+        
+
     void InsertNode(AABB&& bounds) 
     {
         Node node;
@@ -140,6 +219,7 @@ struct Tree
                 }
         }
 
+        PairToSibling(bestSibling.index, std::forward<Node>(node));
         std::cout << "sus" << "\n";
         /// TO BE DONE : ADD the node to the best sibling
     }
