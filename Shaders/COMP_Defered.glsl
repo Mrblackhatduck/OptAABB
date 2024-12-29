@@ -90,7 +90,7 @@ float March(vec3 point,float maxMarchDistance)
 {
     if(maxMarchDistance == -1)
         {
-            maxMarchDistance = ScreenToWorld(vec3(point.x,point.y,point.z)) 
+            maxMarchDistance = length(ScreenToWorld(vec3(point.x,point.y,0.0f)).xyz - ScreenToWorld(vec3(point.x,point.y,1.0f)).xyz) ;
         }
 
     float marchUnit = maxMarchDistance/marchSteps;
@@ -125,7 +125,7 @@ void main()
     vec4 fragPosition = texture(position,coordF);
 
     col = col * (1-CalculateShadow(fragPosition,texture(normal,coordF).xyz));
-    float marchVal = (March(coordF,5,30));
+    float marchVal = March(vec3(coordF,0),30);
     if(marchVal > .1f)
     {
         col = /*col +*/ vec4(1,0,0,1);

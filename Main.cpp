@@ -506,13 +506,14 @@ int main()
 
         
         DepthCall.Draw(drawables);
+
+
         ////////////////  compute shader
-       //glBindTexture(GL_TEXTURE_2D, volumetrics);
-       
+      
         ComputeVolumetric->use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, VolumetricTexture);
-        ComputeVolumetric->setInt("VolumetricResult", 0);
+       ComputeVolumetric->setInt("VolumetricResult", 0);
        
         ComputeVolumetric->setVec3("camPosition", cam.Position);
         ComputeVolumetric->setVec3("lightPosition", eye);
@@ -534,14 +535,14 @@ int main()
         ComputeVolumetric->setInt("inDepth",3);
        
         glDispatchCompute(SCR_WIDTH, SCR_HEIGHT, 1);
-        
-        glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+        glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+        //glMemoryBarrier(GL_ALL_BARRIER_BITS);
        
-       debugDepthCall.shader->use();
-       glActiveTexture(GL_TEXTURE0);
-       glBindTexture(GL_TEXTURE_2D, VolumetricTexture);
-       debugDepthCall.shader->setInt("VolumetericInput", 0);
+        ///-------------------
        
+        debugDepthCall.shader->use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindImageTexture(0, VolumetricTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
        glActiveTexture(GL_TEXTURE1);
        glBindTexture(GL_TEXTURE_2D, deferedRenderer.Albedo);
@@ -558,6 +559,8 @@ int main()
        glActiveTexture(GL_TEXTURE4);
        glBindTexture(GL_TEXTURE_2D, DepthCall.depthTexture);
        debugDepthCall.shader->setInt("shadowMap", 4);
+
+       
 
 
        debugDepthCall.shader->setMat4("LightMatrix", finalLightMat);

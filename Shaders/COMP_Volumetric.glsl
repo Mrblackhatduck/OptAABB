@@ -82,15 +82,6 @@ vec4 ScreenToWorld(vec3 imgSpace)
 	vec4 world = (inverse(viewMatrix) * view);
 	
 	return vec4(world);
-//    float ndc_x = (imgSpace.x * 2) -1;
-//    float ndc_y = (imgSpace.y * 2) -1;
-//    float ndc_z = imgSpace.z;
-//
-//    vec4 NDC = inverse(projectionMat)* vec4(ndc_x,ndc_y,ndc_z,1);
-//    NDC = NDC/NDC.w;
-//    vec4 worldPoint = inverse(viewMatrix) * NDC;
-//    
-//    return worldPoint;
 }
 
 
@@ -135,34 +126,14 @@ void main()
 	vec3 normal = texture(inNormal, texCoord).xyz;
     float shadow = CalculateShadow(position_world,normal,true);
 
-	//vec3 ViewDirection = normalize(start_position_world.xyz - camPosition);
-    
-	
     float result = March(texCoord,normal,16,10);
 	
     vec4 color = vec4(0.0f);
     color = color * (1-shadow);
     if(result < .5f)
-//    {
-        
-        //imageStore(VolumetricResult,ivec2(gl_GlobalInvocationID.xy),vec4*shadow);
         color += vec4(.5f+  result,.5f+ result,.5f + result,    result);
-    //}
-    
-        imageStore(VolumetricResult,ivec2(gl_GlobalInvocationID.xy),color);
-        memoryBarrierImage();
-//    barrier();
-//	
-//    atomicAdd(pixelVal,int(start_position_world.x)*225);
-//	
-//	barrier();
-//
-//
-//	if(gl_LocalInvocationID.z == 0)
-//	{
-//		//vec4 finalVal = vec4(val/225);
-//		vec4 finalVal = vec4(pixelVal/225);
-//        
-//		imageStore(VolumetricResult,ivec2(gl_GlobalInvocationID.xy),finalVal);
-//	}
+
+    //barrier();
+    imageStore(VolumetricResult,ivec2(gl_GlobalInvocationID.xy),color);
+   
 }

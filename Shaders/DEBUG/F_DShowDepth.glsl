@@ -4,7 +4,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 
-uniform sampler2D VolumetericInput;
+layout(binding = 0)uniform sampler2D VolumetericInput;
 uniform sampler2D DepthImage;
 uniform sampler2D albedo;
 uniform sampler2D position;
