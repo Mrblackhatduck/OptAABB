@@ -534,9 +534,9 @@ int main()
         glBindTexture(GL_TEXTURE_2D, DepthCall.depthTexture);
         ComputeVolumetric->setInt("inDepth",3);
        
-        glDispatchCompute(SCR_WIDTH, SCR_HEIGHT, 1);
+        glDispatchCompute(SCR_WIDTH/8, SCR_HEIGHT/8, 1);
         glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
-        //glMemoryBarrier(GL_ALL_BARRIER_BITS);
+        
        
         ///-------------------
        

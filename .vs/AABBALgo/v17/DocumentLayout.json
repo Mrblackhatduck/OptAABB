@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\COMP_Volumetric.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Shaders\\COMP_Volumetric.glsl||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
@@ -13,10 +17,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\DEBUG\\F_DShowDepth.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
       "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Shaders\\DEBUG\\F_DShowDepth.glsl||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\COMP_Volumetric.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|solutionrelative:Shaders\\COMP_Volumetric.glsl||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{BEFF91D2-2ADF-106E-33F7-9B449F5577CF}|OptAABB.vcxproj|C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\COMP_Defered.glsl||{8B382828-6202-11D1-8870-0000F87579D2}",
@@ -86,7 +86,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 13,
           "Children": [
             {
               "$type": "Document",
@@ -116,13 +116,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Main.cpp",
               "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Main.cpp",
               "RelativeDocumentMoniker": "Main.cpp",
-              "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Main.cpp*",
-              "RelativeToolTip": "Main.cpp*",
-              "ViewState": "AgIAABQCAAAAAAAAAAAcwB8CAAAlAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Main.cpp",
+              "RelativeToolTip": "Main.cpp",
+              "ViewState": "AgIAAAoCAAAAAAAAAAAcwBgCAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-11-13T10:56:22.394Z",
               "IsPinned": true,
@@ -170,20 +170,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "COMP_Volumetric.glsl",
               "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\COMP_Volumetric.glsl",
               "RelativeDocumentMoniker": "Shaders\\COMP_Volumetric.glsl",
               "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\COMP_Volumetric.glsl",
               "RelativeToolTip": "Shaders\\COMP_Volumetric.glsl",
-              "ViewState": "AgIAAH8AAAAAAAAAAAAgwIEAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAHkAAAAAAAAAAAAAAIcAAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2024-12-26T18:11:22.799Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "F_DShowDepth.glsl",
               "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\DEBUG\\F_DShowDepth.glsl",
               "RelativeDocumentMoniker": "Shaders\\DEBUG\\F_DShowDepth.glsl",
@@ -191,8 +191,7 @@
               "RelativeToolTip": "Shaders\\DEBUG\\F_DShowDepth.glsl",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-11-19T21:22:05.999Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-19T21:22:05.999Z"
             },
             {
               "$type": "Document",
@@ -220,7 +219,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Texture.cpp",
               "DocumentMoniker": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Texture.cpp",
               "RelativeDocumentMoniker": "Texture.cpp",
@@ -228,8 +227,7 @@
               "RelativeToolTip": "Texture.cpp",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAABUAAABNAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-12-06T18:40:43.456Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-06T18:40:43.456Z"
             },
             {
               "$type": "Document",

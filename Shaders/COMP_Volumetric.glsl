@@ -3,7 +3,9 @@
 #define NUM_STEPS 16
 #define MAX_DIST 30 
 #define M_PI 3.14159265359
-layout(local_size_x = 1, local_size_y =1, local_size_z = 1) in;
+#define LOCAL_X 8
+#define LOCAL_Y 8
+layout(local_size_x = 8, local_size_y =8, local_size_z = 1) in;
 
 
 uniform vec3 camPosition;
@@ -107,18 +109,31 @@ float March(vec2 point,vec3 Normal,float marchSteps,float maxMarchDistance)
     return value;
 }
 
-
+//float MarchInvocation()
+//{
+//    
+//}
 void main()
 {
 
 	
-	uint GlobalX = gl_GlobalInvocationID.x;
-	uint GlobalY = gl_GlobalInvocationID.y;
+	//uint GlobalX = gl_GlobalInvocationID.x*gl_LocalInvocationID.x;
+	//uint GlobalY = gl_GlobalInvocationID.y*gl_LocalInvocationID.y;
+    uint SCR_WIDTH = gl_NumWorkGroups.x * LOCAL_X;
+    uint SCR_HEIGHT = gl_NumWorkGroups.y * LOCAL_Y;
+    ivec2 globalTotal = ivec2(gl_NumWorkGroups);
+    ivec2 localTotal = ivec2(gl_NumSubgroups);
+    ivec2 localID = ivec2(gl_LocalInvocationID.xy);
+    ivec2 globalID = ivec2(gl_WorkGroupID.xy);
+    
+    uint GlobalX = (globalID.x * LOCAL_X) + (localID.x% LOCAL_X);
+    uint GlobalY = (globalID.y * LOCAL_Y) + (localID.y% LOCAL_Y); //+ (LOCAL_Y * gl_LocalInvocationID.y);
+
 
     ivec2 ItexCoord = ivec2(GlobalX,GlobalY);
     vec2 texCoord = vec2(0);
-    texCoord.x = float(ItexCoord.x) / float(gl_NumWorkGroups.x);
-    texCoord.y = float(ItexCoord.y) / float(gl_NumWorkGroups.y);
+    texCoord.x = float(ItexCoord.x) / float(SCR_WIDTH);
+    texCoord.y = float(ItexCoord.y) / float(SCR_HEIGHT);
 
 
 	
@@ -134,6 +149,6 @@ void main()
         color += vec4(.5f+  result,.5f+ result,.5f + result,    result);
 
     //barrier();
-    imageStore(VolumetricResult,ivec2(gl_GlobalInvocationID.xy),color);
+    imageStore(VolumetricResult,ivec2(GlobalX,GlobalY),color);
    
 }
