@@ -5,7 +5,7 @@
 #define M_PI 3.14159265359
 #define LOCAL_X 8
 #define LOCAL_Y 8
-layout(local_size_x = 8, local_size_y =8, local_size_z = 1) in;
+layout(local_size_x = LOCAL_X, local_size_y =LOCAL_Y, local_size_z = 1) in;
 
 
 uniform vec3 camPosition;

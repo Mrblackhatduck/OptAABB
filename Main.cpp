@@ -438,11 +438,13 @@ int main()
     Shader ShadowShader("./Shaders/V_Shadow.glsl", "./Shaders/F_ShadowVolume.glsl");
     Shader DebugDepthShader("./Shaders/DEBUG/V_DShowDepth.glsl", "./Shaders/DEBUG/F_DShowDepth.glsl");
     std::shared_ptr<Shader> DeferedShader = std::make_shared<Shader>("./Shaders/Defered/V_Def.glsl", "./Shaders/Defered/F_Def.glsl");
-    Shader ComputeTester("./Shaders/COMP_Test.glsl");
+    //Shader ComputeTester("./Shaders/COMP_Test.glsl");
     
     std::shared_ptr<Shader> ComputeVolumetric = std::make_shared<Shader>("./shaders/COMP_Volumetric.glsl");
+    std::shared_ptr<Shader> ComputeGaussianBlur = std::make_shared<Shader>("./shaders/COMP_BLUR.glsl");
     Texture VolumetricTexture = Texture(SCR_WIDTH, SCR_HEIGHT, TextureType::BASIC);
-    
+    Texture BlurOutput = Texture(SCR_WIDTH, SCR_HEIGHT, TextureType::BASIC);
+
     //std::shared_ptr<Shader> ComputeDefered = std::make_shared<Shader>("./Shaders/COMP_Defered.glsl");
     DrawCallDepth DepthCall(
         1024,1024,
@@ -536,13 +538,19 @@ int main()
        
         glDispatchCompute(SCR_WIDTH/8, SCR_HEIGHT/8, 1);
         glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
-        
-       
         ///-------------------
+        //blur dispatch
+        ComputeGaussianBlur->use();
        
+        glBindImageTexture(0, VolumetricTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+        glBindImageTexture(1, BlurOutput, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        
+        glDispatchCompute((SCR_WIDTH) / 16, (SCR_HEIGHT) / 16, 1);
+        glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+
         debugDepthCall.shader->use();
         glActiveTexture(GL_TEXTURE0);
-        glBindImageTexture(0, VolumetricTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        glBindImageTexture(0, BlurOutput, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
 
        glActiveTexture(GL_TEXTURE1);
        glBindTexture(GL_TEXTURE_2D, deferedRenderer.Albedo);
