@@ -4,7 +4,7 @@ out vec4 FragColor;
 in vec2 TexCoords;
 
 
-layout(binding = 0)uniform sampler2D VolumetericInput;
+layout(binding = 0) uniform sampler2D VolumetericInput;
 uniform sampler2D DepthImage;
 uniform sampler2D albedo;
 uniform sampler2D position;
@@ -142,6 +142,6 @@ void main()
 //    }
     
 
-	FragColor = col + newMarchCol; //* vec4(CalculateLight(position.rgb,_normal,LightPos.rgb),1);
+	FragColor = col + .3f*(1-newMarchCol); //* vec4(CalculateLight(position.rgb,_normal,LightPos.rgb),1);
 	//FragColor = texture(VolumetericInput,TexCoords); // delete this bro
 }

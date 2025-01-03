@@ -1,7 +1,7 @@
 #version 430 core
 
-#define NUM_STEPS 16
-#define MAX_DIST 30 
+#define NUM_STEPS 32
+#define MAX_DIST 15
 #define M_PI 3.14159265359
 #define LOCAL_X 8
 #define LOCAL_Y 8
@@ -141,12 +141,12 @@ void main()
 	vec3 normal = texture(inNormal, texCoord).xyz;
     float shadow = CalculateShadow(position_world,normal,true);
 
-    float result = March(texCoord,normal,16,10);
+    float result = March(texCoord,normal,NUM_STEPS,MAX_DIST);
 	
     vec4 color = vec4(0.0f);
     color = color * (1-shadow);
-    if(result < .5f)
-        color += vec4(.5f+  result,.5f+ result,.5f + result,    result);
+    //if(result < .5f)
+        color += vec4(  result,result,result,    result);
 
     //barrier();
     imageStore(VolumetricResult,ivec2(GlobalX,GlobalY),color);

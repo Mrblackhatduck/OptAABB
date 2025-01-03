@@ -514,8 +514,9 @@ int main()
       
         ComputeVolumetric->use();
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, VolumetricTexture);
-       ComputeVolumetric->setInt("VolumetricResult", 0);
+        glBindImageTexture(0, VolumetricTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        /*glBindTexture(GL_TEXTURE_2D, VolumetricTexture);
+       ComputeVolumetric->setInt("VolumetricResult", 0);*/
        
         ComputeVolumetric->setVec3("camPosition", cam.Position);
         ComputeVolumetric->setVec3("lightPosition", eye);
@@ -542,15 +543,23 @@ int main()
         //blur dispatch
         ComputeGaussianBlur->use();
        
-        glBindImageTexture(0, VolumetricTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-        glBindImageTexture(1, BlurOutput, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-        
-        glDispatchCompute((SCR_WIDTH) / 16, (SCR_HEIGHT) / 16, 1);
-        glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, VolumetricTexture);
+        //glBindImageTexture(0, VolumetricTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+        ComputeGaussianBlur->setInt("inputImage", 0);
 
+        glActiveTexture(GL_TEXTURE1);
+        glBindImageTexture(1, BlurOutput, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        ComputeGaussianBlur->setInt("outpuImage", 1);
+
+        glDispatchCompute((SCR_WIDTH) / 8, (SCR_HEIGHT) / 8, 1);
+        glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+        //*-----
         debugDepthCall.shader->use();
         glActiveTexture(GL_TEXTURE0);
-        glBindImageTexture(0, BlurOutput, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        //glBindImageTexture(0, BlurOutput, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        glBindTexture(GL_TEXTURE_2D, BlurOutput);
+        debugDepthCall.shader->setInt("VolumetericInput",0);
 
        glActiveTexture(GL_TEXTURE1);
        glBindTexture(GL_TEXTURE_2D, deferedRenderer.Albedo);
