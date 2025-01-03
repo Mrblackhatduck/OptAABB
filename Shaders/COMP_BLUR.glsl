@@ -1,7 +1,7 @@
 
 #version 430 core
-#define LOCAL_X 8
-#define LOCAL_Y 8
+#define LOCAL_X 16
+#define LOCAL_Y 16
 
 layout(local_size_x = LOCAL_X, local_size_y =LOCAL_Y, local_size_z = 1) in;
 
@@ -22,7 +22,7 @@ float xs,ys;            // texture resolution
 
 
 void main() {
-    r = 10.0f;
+    r = 15.0f;
     uint SCR_WIDTH = gl_NumWorkGroups.x * LOCAL_X;
     uint SCR_HEIGHT = gl_NumWorkGroups.y * LOCAL_Y;
     
@@ -60,7 +60,7 @@ void main() {
             w=w0*exp((-y*y)/(2.0*rr)); 
             col+=texture(inputImage,p)*w; 
             }
-            }
+    }
 
 
 

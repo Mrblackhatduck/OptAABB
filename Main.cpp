@@ -552,7 +552,7 @@ int main()
         glBindImageTexture(1, BlurOutput, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
         ComputeGaussianBlur->setInt("outpuImage", 1);
 
-        glDispatchCompute((SCR_WIDTH) / 8, (SCR_HEIGHT) / 8, 1);
+        glDispatchCompute((SCR_WIDTH) / 16, (SCR_HEIGHT) / 16, 1);
         glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
         //*-----
         debugDepthCall.shader->use();

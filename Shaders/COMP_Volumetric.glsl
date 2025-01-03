@@ -1,6 +1,6 @@
 #version 430 core
 
-#define NUM_STEPS 32
+#define NUM_STEPS 64
 #define MAX_DIST 15
 #define M_PI 3.14159265359
 #define LOCAL_X 8
@@ -19,6 +19,9 @@ uniform sampler2D inNormal;
 uniform sampler2D inDepth;
 
 layout (rgba32f, binding =0) uniform image2D VolumetricResult;
+
+vec2 samplePixel;
+ivec2 iSamplePixel;
 
 float HenyeyGreinstein(vec3 worldPosition)
 {
@@ -91,18 +94,28 @@ float March(vec2 point,vec3 Normal,float marchSteps,float maxMarchDistance)
 {
     vec3 start = (ScreenToWorld(vec3(point,0))).xyz;
     vec3 end = (ScreenToWorld(vec3(point,1))).xyz;
+
     //float marchUnit = maxMarchDistance/marchSteps;
     float marchUnit = length(vec3(end-start))/marchSteps;
     vec3 direction = normalize(end - start);
     
+    // is there a fragment in the way of the way of the ray ?? if so (dont march past it !!)
+    vec3 endEarlyPos = texture(inPosition,samplePixel).xyz;
+
+    float fragLengthInDir = dot(direction,endEarlyPos);
 
     vec3 pointWorld = start;
     float value = 0;
     for(int i=0; i<marchSteps; i++)
     {
         pointWorld = start + (direction * marchUnit * i);
+
+        float currentValDot = dot(direction, pointWorld);
+        if(currentValDot > fragLengthInDir)
+         break;
+
         if(CalculateShadow(vec4(pointWorld,1),Normal,true)>.01f)
-            value += HenyeyGreinstein(pointWorld);
+            value += HenyeyGreinstein(pointWorld)*1.5f;
 
     }
 
@@ -134,8 +147,8 @@ void main()
     vec2 texCoord = vec2(0);
     texCoord.x = float(ItexCoord.x) / float(SCR_WIDTH);
     texCoord.y = float(ItexCoord.y) / float(SCR_HEIGHT);
-
-
+    samplePixel = texCoord;
+    iSamplePixel = ItexCoord;
 	
 	vec4 position_world = texture(inPosition,texCoord);
 	vec3 normal = texture(inNormal, texCoord).xyz;

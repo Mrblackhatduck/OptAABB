@@ -129,8 +129,7 @@
               "ViewState": "AgIAABkCAAAAAAAAAAAcwCICAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-11-13T10:56:22.394Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Bookmark",
@@ -180,7 +179,7 @@
               "RelativeDocumentMoniker": "Shaders\\COMP_BLUR.glsl",
               "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\COMP_BLUR.glsl*",
               "RelativeToolTip": "Shaders\\COMP_BLUR.glsl*",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAgwBgAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAABgAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2024-12-31T19:10:55.884Z",
               "EditorCaption": ""
@@ -193,7 +192,7 @@
               "RelativeDocumentMoniker": "Shaders\\COMP_Volumetric.glsl",
               "ToolTip": "C:\\Users\\osama\\OneDrive\\Desktop\\REPOS\\OptAABB\\Shaders\\COMP_Volumetric.glsl",
               "RelativeToolTip": "Shaders\\COMP_Volumetric.glsl",
-              "ViewState": "AgIAABIAAAAAAAAAAAAAAAMAAAATAAAAAAAAAA==",
+              "ViewState": "AgIAAGgAAAAAAAAAAAAAAHUAAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2024-12-31T21:34:58.019Z",
               "EditorCaption": ""
@@ -208,8 +207,7 @@
               "RelativeToolTip": "Shaders\\DEBUG\\F_DShowDepth.glsl",
               "ViewState": "AgIAAH0AAAAAAAAAAAAAAJAAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-11-19T21:22:05.999Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-19T21:22:05.999Z"
             },
             {
               "$type": "Document",
