@@ -1,12 +1,13 @@
 #version 430 core
 
-#define NUM_STEPS 64
-#define MAX_DIST 15
+#define NUM_STEPS 15
+#define MAX_DIST 25
 #define M_PI 3.14159265359
 #define LOCAL_X 8
 #define LOCAL_Y 8
 layout(local_size_x = LOCAL_X, local_size_y =LOCAL_Y, local_size_z = 1) in;
 
+uniform float time;
 
 uniform vec3 camPosition;
 uniform vec3 lightPosition;
@@ -92,11 +93,19 @@ vec4 ScreenToWorld(vec3 imgSpace)
 
 float March(vec2 point,vec3 Normal,float marchSteps,float maxMarchDistance)
 {
+    // Bayer Matrix to offset output a bit
+    float ditherPattern[4][4] = {{ 0.0f, 0.5f, 0.0125f, 0.0625f},
+        { 0.105f, 0.22f, 0.0875f, 0.0375f},
+        { 0.1875f, 0.3875f, 0.225f, 0.05625},
+        { 0.6375f, 0.4375f, 0.1125f, 0.3125}};
+    float ditherValue = ditherPattern[int(mod(iSamplePixel.x, 4))][int(mod(iSamplePixel.y, 4))];
+
     vec3 start = (ScreenToWorld(vec3(point,0))).xyz;
+    start  += NUM_STEPS *  vec3(ditherValue);
     vec3 end = (ScreenToWorld(vec3(point,1))).xyz;
 
-    //float marchUnit = maxMarchDistance/marchSteps;
-    float marchUnit = length(vec3(end-start))/marchSteps;
+    float marchUnit = maxMarchDistance/marchSteps;
+    //float marchUnit = length(vec3(end-start))/marchSteps;
     vec3 direction = normalize(end - start);
     
     // is there a fragment in the way of the way of the ray ?? if so (dont march past it !!)
@@ -109,29 +118,26 @@ float March(vec2 point,vec3 Normal,float marchSteps,float maxMarchDistance)
     for(int i=0; i<marchSteps; i++)
     {
         pointWorld = start + (direction * marchUnit * i);
+        
 
         float currentValDot = dot(direction, pointWorld);
         if(currentValDot > fragLengthInDir)
          break;
 
         if(CalculateShadow(vec4(pointWorld,1),Normal,true)>.01f)
-            value += HenyeyGreinstein(pointWorld)*1.5f;
+            value += HenyeyGreinstein(pointWorld) * 3.0f;
 
     }
 
     return value;
 }
 
-//float MarchInvocation()
-//{
-//    
-//}
+
 void main()
 {
 
 	
-	//uint GlobalX = gl_GlobalInvocationID.x*gl_LocalInvocationID.x;
-	//uint GlobalY = gl_GlobalInvocationID.y*gl_LocalInvocationID.y;
+	
     uint SCR_WIDTH = gl_NumWorkGroups.x * LOCAL_X;
     uint SCR_HEIGHT = gl_NumWorkGroups.y * LOCAL_Y;
     ivec2 globalTotal = ivec2(gl_NumWorkGroups);

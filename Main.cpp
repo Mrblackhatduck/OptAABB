@@ -430,7 +430,7 @@ int main()
     vec3 up = { 0,1,0 };
     lightMat = glm::lookAt(eye, target, up);
         //glm::lookAt(eye, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-    mat4 lightProj = glm::ortho(-7.5f, 7.5f, -7.5f, 7.5f, 1.5f, 100.5f);
+    mat4 lightProj = glm::ortho(-7.5f, 7.5f, -7.5f, 7.5f, .15f, 100.5f);
     
     mat4 finalLightMat = lightProj * lightMat;
    
@@ -509,14 +509,12 @@ int main()
         
         DepthCall.Draw(drawables);
 
-
+        //***
         ////////////////  compute shader
       
         ComputeVolumetric->use();
         glActiveTexture(GL_TEXTURE0);
         glBindImageTexture(0, VolumetricTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
-        /*glBindTexture(GL_TEXTURE_2D, VolumetricTexture);
-       ComputeVolumetric->setInt("VolumetricResult", 0);*/
        
         ComputeVolumetric->setVec3("camPosition", cam.Position);
         ComputeVolumetric->setVec3("lightPosition", eye);
@@ -539,6 +537,7 @@ int main()
        
         glDispatchCompute(SCR_WIDTH/8, SCR_HEIGHT/8, 1);
         glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
+        
         ///-------------------
         //blur dispatch
         ComputeGaussianBlur->use();
@@ -555,6 +554,9 @@ int main()
         glDispatchCompute((SCR_WIDTH) / 16, (SCR_HEIGHT) / 16, 1);
         glMemoryBarrier(GL_TEXTURE_FETCH_BARRIER_BIT);
         //*-----
+
+
+
         debugDepthCall.shader->use();
         glActiveTexture(GL_TEXTURE0);
         //glBindImageTexture(0, BlurOutput, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);

@@ -22,7 +22,7 @@ float xs,ys;            // texture resolution
 
 
 void main() {
-    r = 15.0f;
+    r = 10.0f;
     uint SCR_WIDTH = gl_NumWorkGroups.x * LOCAL_X;
     uint SCR_HEIGHT = gl_NumWorkGroups.y * LOCAL_Y;
     
