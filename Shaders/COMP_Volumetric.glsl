@@ -1,6 +1,6 @@
 #version 430 core
 
-#define NUM_STEPS 15
+#define NUM_STEPS 10
 #define MAX_DIST 25
 #define M_PI 3.14159265359
 #define LOCAL_X 8
@@ -30,6 +30,11 @@ float HenyeyGreinstein(vec3 worldPosition)
     float costh = dot(normalize(worldPosition -lightPosition), normalize(worldPosition - camPosition));
     return (1.0 - g * g) / (4.0 * M_PI * pow(1.0 + g * g - 2.0 * g * costh, 3.0/2.0));
 }
+
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
 
 float CalculateShadow(vec4 positionWorld,vec3 Normal,bool filtered)
 {
@@ -91,20 +96,15 @@ vec4 ScreenToWorld(vec3 imgSpace)
 }
 
 
-float March(vec2 point,vec3 Normal,float marchSteps,float maxMarchDistance)
+float March(vec2 point,vec3 Normal,int marchSteps,float maxMarchDistance)
 {
-    // Bayer Matrix to offset output a bit
-    float ditherPattern[4][4] = {{ 0.0f, 0.5f, 0.0125f, 0.0625f},
-        { 0.105f, 0.22f, 0.0875f, 0.0375f},
-        { 0.1875f, 0.3875f, 0.225f, 0.05625},
-        { 0.6375f, 0.4375f, 0.1125f, 0.3125}};
-    float ditherValue = ditherPattern[int(mod(iSamplePixel.x, 4))][int(mod(iSamplePixel.y, 4))];
-
+    float marchUnit = maxMarchDistance/float(marchSteps);
     vec3 start = (ScreenToWorld(vec3(point,0))).xyz;
-    start  += NUM_STEPS *  vec3(ditherValue);
-    vec3 end = (ScreenToWorld(vec3(point,1))).xyz;
+    
+    start = camPosition;
 
-    float marchUnit = maxMarchDistance/marchSteps;
+    vec3 end = (ScreenToWorld(vec3(point,.9909f))).xyz;
+
     //float marchUnit = length(vec3(end-start))/marchSteps;
     vec3 direction = normalize(end - start);
     
@@ -117,15 +117,16 @@ float March(vec2 point,vec3 Normal,float marchSteps,float maxMarchDistance)
     float value = 0;
     for(int i=0; i<marchSteps; i++)
     {
-        pointWorld = start + (direction * marchUnit * i);
+        float randomPtOffset = random(vec2(point.x * i, point.y * i)) * marchUnit;
+        pointWorld = start + (direction * marchUnit * i) + (direction * randomPtOffset);
         
 
         float currentValDot = dot(direction, pointWorld);
         if(currentValDot > fragLengthInDir)
          break;
 
-        if(CalculateShadow(vec4(pointWorld,1),Normal,true)>.01f)
-            value += HenyeyGreinstein(pointWorld) * 3.0f;
+        if(CalculateShadow(vec4(pointWorld,1),Normal,true)>.001f)
+            value += HenyeyGreinstein(pointWorld) ;//* 10.0f;
 
     }
 

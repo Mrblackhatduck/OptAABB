@@ -440,6 +440,7 @@ int main()
     std::shared_ptr<Shader> DeferedShader = std::make_shared<Shader>("./Shaders/Defered/V_Def.glsl", "./Shaders/Defered/F_Def.glsl");
     //Shader ComputeTester("./Shaders/COMP_Test.glsl");
     
+    //std::shared_ptr<Shader> ComputeVolumetric = std::make_shared<Shader>("./shaders/COMP_Volumetric.glsl");
     std::shared_ptr<Shader> ComputeVolumetric = std::make_shared<Shader>("./shaders/COMP_Volumetric.glsl");
     std::shared_ptr<Shader> ComputeGaussianBlur = std::make_shared<Shader>("./shaders/COMP_BLUR.glsl");
     Texture VolumetricTexture = Texture(SCR_WIDTH, SCR_HEIGHT, TextureType::BASIC);
